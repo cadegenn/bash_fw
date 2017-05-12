@@ -1,0 +1,75 @@
+#
+# script to load color schemes and macros
+#
+# Copyright (C) 2015-2016  Charles-Antoine Degennes <cadegenn@gmail.com>
+# 
+# This file is part of The API project
+# 
+#     The API project is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+# 
+#     The API project is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+# 
+#     You should have received a copy of the GNU General Public License
+#     along with The API project.  If not, see <http://www.gnu.org/licenses/>.
+# 
+#
+# Changelog
+# 2014.11.19, DCA
+# . delete *_msg()
+#
+# 2008.04.30, DCA
+# . change bad_msg in RED and warn_msg in YELLOW
+# . bad_msg() -> delete splash ... because there is no bootsplash yet
+#
+# 2007.06.14, DCA
+# . initial version
+#
+
+# forcer echo a interprêter les couleurs
+alias echo='echo -e'
+
+# From KNOPPIX LINUXRC
+# Reset fb color mode
+#COLOR_RESET="\033]R"
+# ANSI COLORS
+# Erase to end of line
+COLOR_CRE="
+\033[K"
+# Clear and reset Screen
+COLOR_CLEAR="\033c"
+# Normal color
+COLOR_NORMAL="\e[0;49;39m"
+# RED: Failure or error message
+COLOR_RED="\e[0;49;31m"
+COLOR_ORANGE="\e[1;49;31m"
+# GREEN: Success message
+COLOR_GREEN="\e[0;49;32m"
+COLOR_LIME="\e[1;49;32m"
+# YELLOW: Descriptions
+#COLOR_YELLOW="\e[33m"
+COLOR_YELLOW="\033[33;1m"
+# BLUE: System mesages
+COLOR_BLUE="\e[34m"
+# MAGENTA: Found devices or drivers
+COLOR_MAGENTA="\033[1;35m"
+COLOR_SILVER="\e[0;49;37m"
+COLOR_GRAY="\e[30m"
+COLOR_MEDGRAY="\e[1;49;30m"
+# CYAN: Questions
+COLOR_CYAN="\033[1;36m"
+# BOLD WHITE: Hint
+COLOR_WHITE="\033[1;37m"
+
+COLOR_BACK_UP="\033[1K\033[0G"
+COLOR_WARN=${COLOR_YELLOW}
+COLOR_BAD="\033[31;1m"
+COLOR_BOLD="\033[1m"
+COLOR_GOOD="\033[32;1m"
+COLOR_DEBUG=${MEDGRAY}
+COLOR_RESET=${COLOR_NORMAL}

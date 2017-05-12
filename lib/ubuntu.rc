@@ -1,0 +1,105 @@
+## @file ubuntu.rc
+## @brief Dictionnary of ubuntu specific functions.
+## @author Charles-Antoine Degennes <cadegenn@gmail.com>
+## @copyright Copyright (C) 2015-2016  Charles-Antoine Degennes <cadegenn@gmail.com>
+
+# 
+# This file is part of The API project
+# 
+#     The API project is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+# 
+#     The API project is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+# 
+#     You should have received a copy of the GNU General Public License
+#     along with The API project.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Changelog
+# =========
+# 2017.04.27, DCA -		add checkPackageIsInstalled() function
+# 2016.05.20, DCA -		add edevel() function
+
+
+## @fn checkPackageIsInstalled()
+## @brief check if given package is installed
+## @note It cannot check for virtual package. You must provide real name of package.
+## @param $package	name of package to check
+## @retval 0 if package is found
+## @retval 1 if package is not installed
+checkPackageIsInstalled() {
+	local package=${1}
+	dpkg -s ${package} > /dev/nul 2>&1
+}
+
+eindent() {
+	INDENT="  ${INDENT}"
+}
+eoutdent() {
+	INDENT=${INDENT/  /}
+}
+ebegin() {
+	log_begin_msg "${INDENT}$*"
+	# if debug mode, add an empty line (with carriage return) to align properly subsequent eexec calls
+	if [ ${DEBUG} ]; then echo; fi
+}
+equestion() {
+	echo -ne "${INDENT} * $*"
+	[ "${YES}" ] && echo
+}
+eend() {
+	[ "${DEBUG}" ] && echo -e "\033[2A"
+	log_end_msg "$*"
+}
+einfo() {
+	log_action_msg "${INDENT}$@"
+}
+eerror() {
+	log_failure_msg "${INDENT}ERR: $*"
+}
+efatal() {
+	eerror $*
+	exit 1
+}
+ewarn() {
+	log_warning_msg "${INDENT}WRN: $*"
+}
+edebug() {
+	if [ ${DEBUG} ]; then
+		log_action_msg "${INDENT}DBG: $@"
+		#echo -e "${INDENT}${COLOR_DEBUG}DBG: $@${COLOR_RESET}"
+	fi
+}
+edevel() {
+	if [ ${DEVEL} ]; then
+		log_action_msg "${INDENT}DEV: $@"
+		#echo -e "${INDENT}${COLOR_DEVEL}DBG: $@${COLOR_RESET}"
+	fi
+}
+eexec() {
+	local CMD="$*"
+	#[ "${DEBUG}" ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.debug "DEBUG: ${CMD}"
+    if [ "${ASK}" ]; then
+        local ANSWER=$(Question_YN "execute \"${CMD}\" ?" 'y')
+        [ ! "${ANSWER}" ] && return 0
+    else
+        edebug "${CMD}" >> ${TTY}
+    fi
+	[ "${SIMULATE}" ] && return 0
+	if [ "${DEVEL}" ]; then
+		eval ${CMD}
+	elif [ "${DEBUG}" ]; then
+		(eval ${CMD}) > /dev/null
+	else
+		(eval ${CMD}) > /dev/null 2>&1
+	fi
+	#echo ${CMD}
+	#exec ${CMD}
+	local RC=$?
+	#[ -f "${OUTPUT}" ] && [ ${VERBOSE} -gt 1 ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.info -f "${OUTPUT}" && rm -f "${OUTPUT}"
+	return ${RC}
+}

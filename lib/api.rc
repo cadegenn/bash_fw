@@ -1,0 +1,202 @@
+## @file api.rc
+## @brief global include file for scripts
+## @author Charles-Antoine Degennes <cadegenn@gmail.com>
+## @copyright   (c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
+
+# interpret backslash-escaped characters
+shopt -s xpg_echo
+
+#
+# helper functions
+#
+# 
+# Copyright (C) 2015-2016  Charles-Antoine Degennes <cadegenn@gmail.com>
+# 
+# This file is part of The API project
+# 
+#	 The API project is free software: you can redistribute it and/or modify
+#	 it under the terms of the GNU General Public License as published by
+#	 the Free Software Foundation, either version 3 of the License, or
+#	 (at your option) any later version.
+# 
+#	 The API project is distributed in the hope that it will be useful,
+#	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	 GNU General Public License for more details.
+# 
+#	 You should have received a copy of the GNU General Public License
+#	 along with The API project.  If not, see <http://www.gnu.org/licenses/>.
+# 
+
+# initialize SOURCE_BASENAME & SOURCE_DIRNAME
+## @var SOURCE_BASENAME
+## @brief filename of currently sourced file (without pathname but with extension)
+declare SOURCE_BASENAME=$(basename ${BASH_SOURCE})
+
+## @var SOURCE_DIRNAME
+## @brief absolute path name to currently sourced file (without filename)
+declare SOURCE_DIRNAME=$(cd $(dirname ${BASH_SOURCE}); pwd)
+
+# default values
+SIMULATE=
+TMP=/tmp/${BASENAME}.$$
+DIRNAME=${DIRNAME:=.}
+
+[ -e /lib/lsb/init-functions ] && source /lib/lsb/init-functions
+# load colors
+[ -e "${DIRNAME}/lib/colors.rc" ] && source "${DIRNAME}/lib/colors.rc"
+[ -e "${DIRNAME}/lib/returncodes.rc" ] && source "${DIRNAME}/lib/returncodes.rc"
+
+TTY=`tty`
+
+# auto-detect things
+if [ $(which lsb_release 2> /dev/null) ]; then
+	OS_ID=$(lsb_release -is | cut -d' ' -f1 | tr [[:upper:]] [[:lower:]])
+else
+	if [ -e "/etc/os-release" ]; then
+		OS_ID=$(cat "/etc/os-release" | grep "^ID=" | cut -d'=' -f2)
+	fi
+fi
+# load distribution-specific functions
+if [ -e "${DIRNAME}/lib/${OS_ID}.rc" ]; then
+	echo "found ${DIRNAME}/lib/${OS_ID}.rc. Loading it."
+	source "${DIRNAME}/lib/${OS_ID}.rc"
+else
+	echo "'${DIRNAME}/lib/${OS_ID}.rc' not found. Loading '${DIRNAME}/lib/defaults.rc' instead."
+	source "${DIRNAME}/lib/defaults.rc"
+fi
+# override by futur-released themable e*() functions
+source "${SOURCE_DIRNAME}/efunctions.rc"
+source "${SOURCE_DIRNAME}/theme_default.rc"
+
+# detect network
+ETH=$(ip -o -4 route show table main | grep ^default | awk '{print $5}')
+INETMASK=$(ip -o -4 address | grep ${ETH} | awk '{print $4}')
+IPADDRESS=${INETMASK%%/*}
+MASK=${INETMASK##*/}
+case ${MASK} in 
+	8)	VLAN=$(echo ${IPADDRESS} | awk -F'.' '{print $1}')
+		;;
+	16) VLAN=$(echo ${IPADDRESS} | awk -F'.' '{print $1"."$2}')
+		;;
+	24)	VLAN=$(echo ${IPADDRESS} | awk -F'.' '{print $1"."$2"."$3}')
+		;;
+esac
+edebug "ETH = ${ETH}"
+edebug "INETMASK = ${INETMASK}"
+edebug "IPADDRESS = ${IPADDRESS}"
+edebug "MASK = ${MASK}"
+edebug "VLAN = ${VLAN}"
+
+# get architectures
+# Processor architecture
+if [ "`cat /proc/cpuinfo | grep ^flags | grep \" lm\"`" ]; then
+	CPU_ARCH=x64
+else
+	CPU_ARCH=x86
+fi
+edebug "CPU_ARCH = ${CPU_ARCH}"
+# OS architecture
+ELF_VER=`file ./bin/bash | cut -d' ' -f3`
+case "$ELF_VER" in
+	32-bit) OS_ARCH=x86 ;;
+	64-bit) OS_ARCH=x64 ;;
+	*)	OS_ARCH=unknown_arch ;;
+esac
+edebug "OS_ARCH = ${OS_ARCH}"
+
+#
+# @brief	Question()	ask a question and wait for a response
+# @param	(string)	question to ask
+# @param	(string)	default response
+# @return	(string)	anwser of the user
+Question() {
+	[ "${1}" == "-h" ] && ewarn "usage : ${FUNCNAME} \"question\" [default_reponse]" && return
+	question="${1}"
+	[ "${2}" ] && DEFAULT_REPONSE=${2}
+	local TTY=`tty | cut -d' ' -f1`
+	equestion "QUE:" "${question} [${DEFAULT_REPONSE}] " >> ${TTY}
+	read REPONSE
+	echo ${REPONSE:-${DEFAULT_REPONSE}}
+}
+
+#
+# @brief	Question_YN()	ask a YES/No question and wait for a response
+# @param		(string)		question to ask
+# @param		(string)		default response
+# @return	   (string)		'y' if user agree | nothing if user do not agree
+Question_YN() {
+	[ "${1}" == "-h" ] && ewarn "usage : ${FUNCNAME} \"question\" [y|n]" && return
+	question="${1}"
+	[ "${2}" ] && DEFAULT_REPONSE=${2}
+	# if -y was specified on command line
+	if [ "${YES}" ]; then
+		equestion "QUE:" "${question} [y] " >> ${TTY}
+		echo "y"
+		return 0
+	else
+		local REPONSE=`Question "${question}" ${DEFAULT_REPONSE}`
+	fi
+	local SHORT_REPONSE=`echo ${REPONSE:0:1} | tr [:upper:] [:lower:]`
+	if [ "${SHORT_REPONSE}" != "y" ] && [ "${SHORT_REPONSE}" != "o" ]; then
+		local SHORT_REPONSE=
+	else
+		local SHORT_REPONSE=y
+	fi
+	echo ${SHORT_REPONSE}
+}
+
+#
+# @brief	Question_PASSWD()	ask for a password
+# @param		(string)			question to ask
+# @return	   (string)			password entered by the user
+Question_PASSWD() {
+	[ "${1}" == "-h" ] && ewarn "usage : ${FUNCNAME} \"question\" : " && return
+	question="${1}"
+	[ "${2}" ] && DEFAULT_REPONSE=${2}
+	local TTY=`tty | cut -d' ' -f1`
+	equestion "QUE:" "${question}" >> ${TTY}
+	read -s REPONSE
+	echo ${REPONSE:-${DEFAULT_REPONSE}}
+	echo >> ${TTY}
+}
+
+#
+# @brief	serial()	export a serial number based on current date-time
+# @return	(string)	SERIAL numer of the form YYYYmmdd.HHMM
+serial() {
+	date +"%Y%m%d.%H%M"
+}
+
+#
+# @brief	implode()   Join array elements with a string
+# @param	(string)	glue
+# @param	(array)	 pieces
+# @return   (string)	string containing a string representation of all the array elements in the same order, with the glue string between each element
+implode() {
+	local IFS="$1";
+	shift;
+	echo "$*";
+}
+
+#
+# @brief	validate_ip()   validate IP address format
+# @url	  http://www.linuxjournal.com/content/validating-ip-address-bash-script
+# @param	(string)		IP address to check
+# @return   (bool)		  true is @param is an IP address | false otherwise
+validate_ip() {
+	local  ip=$1
+	local  stat=1
+
+	if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+		OIFS=$IFS
+		IFS='.'
+		ip=($ip)
+		IFS=$OIFS
+		[[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
+			&& ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+		stat=$?
+	fi
+	return $stat
+}
+

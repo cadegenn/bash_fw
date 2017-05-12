@@ -1,0 +1,64 @@
+## @file efunctions.rc
+## @brief librarie for e*() functions that do not depend on OS
+## @author Charles-Antoine Degennes <cadegenn@gmail.com>
+## @copyright	(c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
+
+## @fn edevel()
+## @brief display message to help development
+## @param $message  the message to display
+edevel() {
+	if [ ${DEVEL} ]; then
+		echo -e "${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}"
+	fi
+}
+
+## @fn eerror()
+## @brief display error message
+## @param $message  the error message to display
+eerror() {
+    local message=${1}
+    echo -e "${INDENT}${THEME_ERROR_COLOR} * ${message} ${COLOR_NORMAL}"
+}
+
+## @fn efatal()
+## @brief display error message and exit
+## @param $message  the error message to display
+efatal() {
+	eerror "$@"
+	exit 1
+}
+
+## @fn einfo()
+## @brief display info message
+## @param $message  the message to display
+einfo() {
+    local message=${1}
+    echo -e "${INDENT}${THEME_INFO_COLOR} * ${message} ${COLOR_NORMAL}"
+}
+
+## @fn etitle()
+## @brief display a title
+## @param $message  the title to display
+etitle() {
+    local message=${1}
+    echo -e -n "\n${THEME_TITLE_COLOR} "
+    for i in $(seq $((${#message}+6))); do echo -n '*'; done
+    echo "\n ** ${message} ** ${COLOR_NORMAL}"
+}
+
+## @fn everbose()
+## @brief display verbose message
+## @param $message  the message to display
+everbose() {
+    local message=${1}
+    echo -e "${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}"
+}
+
+## @fn ewarn()
+## @brief display warning message
+## @param $message  the warning to display
+ewarn() {
+    local message=${1}
+    echo -e "${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}"
+}
+
