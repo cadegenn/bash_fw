@@ -3,12 +3,38 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright	(c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 
+## @fn ebreak()
+## @brief print a break line
+ebreak() {
+	[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	for i in $(seq ${COLUMNS}); do echo -n '-' >> ${STDOUT}; done
+}
+
+## @fn edebug()
+## @brief display debug message
+## @param $message  the message to display
+edebug() {
+	if [ ${DEBUG} ]; then
+		echo -e "${INDENT}${THEME_DEBUG_COLOR} * DEV: $@${COLOR_NORMAL}" > ${STDOUT}
+	fi
+}
+
 ## @fn edevel()
 ## @brief display message to help development
 ## @param $message  the message to display
 edevel() {
 	if [ ${DEVEL} ]; then
-		echo -e "${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}"
+		echo -e "${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}" > ${STDOUT}
+	fi
+}
+
+## @fn eenter()
+## @brief display message when entering something (a function for example or a loop)
+## @param $message  the message to display
+eenter() {
+    local message=${@}
+	if [ ${DEVEL} ]; then
+    	echo -e "${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}" > ${STDOUT}
 	fi
 }
 
@@ -16,8 +42,8 @@ edevel() {
 ## @brief display error message
 ## @param $message  the error message to display
 eerror() {
-    local message=${1}
-    echo -e "${INDENT}${THEME_ERROR_COLOR} * ${message} ${COLOR_NORMAL}"
+    local message=${@}
+    echo -e "${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}" > ${STDOUT}
 }
 
 ## @fn efatal()
@@ -32,33 +58,43 @@ efatal() {
 ## @brief display info message
 ## @param $message  the message to display
 einfo() {
-    local message=${1}
-    echo -e "${INDENT}${THEME_INFO_COLOR} * ${message} ${COLOR_NORMAL}"
+    local message=${@}
+    echo -e "${INDENT}${THEME_INFO_COLOR} * ${message} ${COLOR_NORMAL}" > ${STDOUT}
+}
+
+## @fn eleave()
+## @brief display message when leaving something (a function for example or a loop)
+## @param $message  the message to display
+eleave() {
+    local message=${@}
+	if [ ${DEVEL} ]; then
+    	echo -e "${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}" > ${STDOUT}
+	fi
 }
 
 ## @fn etitle()
 ## @brief display a title
 ## @param $message  the title to display
 etitle() {
-    local message=${1}
-    echo -e -n "\n${THEME_TITLE_COLOR} "
+    local message=${@}
+    echo -e -n "\n${THEME_TITLE_COLOR} " > ${STDOUT}
     for i in $(seq $((${#message}+6))); do echo -n '*'; done
-    echo "\n ** ${message} ** ${COLOR_NORMAL}"
+    echo "\n ** ${message} ** ${COLOR_NORMAL}" > ${STDOUT}
 }
 
 ## @fn everbose()
 ## @brief display verbose message
 ## @param $message  the message to display
 everbose() {
-    local message=${1}
-    echo -e "${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}"
+    local message=${@}
+    echo -e "${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}" > ${STDOUT}
 }
 
 ## @fn ewarn()
 ## @brief display warning message
 ## @param $message  the warning to display
 ewarn() {
-    local message=${1}
-    echo -e "${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}"
+    local message=${@}
+    echo -e "${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}" > ${STDOUT}
 }
 

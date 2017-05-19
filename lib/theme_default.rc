@@ -3,6 +3,10 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright   (c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 
+## @var THEME_DEBUG_COLOR
+## @brief default color to display debug messages
+declare -r THEME_DEBUG_COLOR=${COLOR_SILVER}
+
 ## @var THEME_DEVEL_COLOR
 ## @brief default color to display development messages
 declare -r THEME_DEVEL_COLOR=${COLOR_GRAY}
@@ -21,7 +25,7 @@ declare -r THEME_TITLE_COLOR=${COLOR_LIME}
 
 ## @var THEME_VERBOSE_COLOR
 ## @brief default color to display verbose informations
-declare -r THEME_VERBOSE_COLOR=${COLOR_SILVER}
+declare -r THEME_VERBOSE_COLOR=${COLOR_WHITE}
 
 ## @var THEME_WARNING_COLOR
 ## @brief default color to display warnings

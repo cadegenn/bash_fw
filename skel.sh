@@ -64,7 +64,8 @@ source "${DIRNAME}/lib/api.rc" || {
 	exit 1
 }
 
-# Print usage informations
+## @fn usage()
+## @brief Print usage informations (help screen)
 usage() {
 	cat <<- EOF
 		DESCRIPTION: ${BASENAME} do some things

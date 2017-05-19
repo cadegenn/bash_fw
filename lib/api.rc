@@ -40,14 +40,25 @@ declare SOURCE_DIRNAME=$(cd $(dirname ${BASH_SOURCE}); pwd)
 # default values
 SIMULATE=
 TMP=/tmp/${BASENAME}.$$
+
+## @var DIRNAME
+## @brief define DIRNAME if it is not already defined (api.rc is sourced from shell)
 DIRNAME=${DIRNAME:=.}
 
-[ -e /lib/lsb/init-functions ] && source /lib/lsb/init-functions
-# load colors
-[ -e "${DIRNAME}/lib/colors.rc" ] && source "${DIRNAME}/lib/colors.rc"
-[ -e "${DIRNAME}/lib/returncodes.rc" ] && source "${DIRNAME}/lib/returncodes.rc"
+source "/lib/lsb/init-functions"
 
-TTY=`tty`
+source "${DIRNAME}/lib/colors.rc"
+source "${DIRNAME}/lib/returncodes.rc"
+
+## @var TTY
+## @brief current tty connected to console if any
+declare TTY=`tty`
+
+## @var STDOUT
+## @brief current standard output
+## @note can be '/dev/stdout', '\${TTY}', or a filename
+## Every e*() functions write to this device
+declare STDOUT=/dev/stdout
 
 # auto-detect things
 if [ $(which lsb_release 2> /dev/null) ]; then
@@ -70,10 +81,21 @@ source "${SOURCE_DIRNAME}/efunctions.rc"
 source "${SOURCE_DIRNAME}/theme_default.rc"
 
 # detect network
-ETH=$(ip -o -4 route show table main | grep ^default | awk '{print $5}')
-INETMASK=$(ip -o -4 address | grep ${ETH} | awk '{print $4}')
-IPADDRESS=${INETMASK%%/*}
-MASK=${INETMASK##*/}
+## @var ETH
+## @brief Default ethernet interface name
+declare ETH=$(ip -o -4 route show table main | grep ^default | awk '{print $5}')
+## @var INETMASK
+## @brief ipaddress/mask couple of default interface
+declare INETMASK=$(ip -o -4 address | grep ${ETH} | awk '{print $4}')
+## @var IPADDRESS
+## @brief Ipaddress of default interface
+declare IPADDRESS=${INETMASK%%/*}
+## @var MASK
+## @brief Netmask of ipaddress detected
+declare MASK=${INETMASK##*/}
+## @var VLAN
+## @brief Vlan computed from IPADDRESS. By default, it is the 1st 2 bytes
+declare VLAN
 case ${MASK} in 
 	8)	VLAN=$(echo ${IPADDRESS} | awk -F'.' '{print $1}')
 		;;
