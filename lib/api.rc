@@ -83,7 +83,7 @@ source "${SOURCE_DIRNAME}/theme_default.rc"
 # detect network
 ## @var ETH
 ## @brief Default ethernet interface name
-declare ETH=$(ip -o -4 route show table main | grep ^default | awk '{print $5}')
+declare ETH=$(ip -o -4 route show table main | grep ^default | tail -n 1 | awk '{print $5}')
 ## @var INETMASK
 ## @brief ipaddress/mask couple of default interface
 declare INETMASK=$(ip -o -4 address | grep ${ETH} | awk '{print $4}')
