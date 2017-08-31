@@ -45,7 +45,8 @@ COLOR_CRE="
 # Clear and reset Screen
 COLOR_CLEAR="\033c"
 # Normal color
-COLOR_NORMAL="\e[0;49;39m"
+#COLOR_NORMAL="\e[0;49;39m"
+COLOR_NORMAL="\e[0m"
 COLOR_BLACK="\e[38;05;0m"
 COLOR_RED="\e[38;05;1m"
 COLOR_GREEN="\e[38;05;2m"
