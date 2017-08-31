@@ -96,8 +96,11 @@ while [ $# -gt 0 ]; do
 		-v)		VERBOSE=true
 				;;
 		-d)		DEBUG=true
+				VERBOSE=true
 				;;
 		-dev)	DEVEL=true
+				DEBUG=true
+				VERBOSE=true
 				;;
 		-h)		usage
 				;;
@@ -137,4 +140,4 @@ main() {
 }
 
 main
-
+echo
