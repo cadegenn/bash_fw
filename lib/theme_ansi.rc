@@ -15,7 +15,7 @@ declare THEME_DEBUG_COLOR=${COLOR_WHITE}
 
 ## @var THEME_DEVEL_COLOR
 ## @brief default color to display development messages
-declare THEME_DEVEL_COLOR=${COLOR_ITALIC}${COLOR_WHITE}
+declare THEME_DEVEL_COLOR=${COLOR_DARK}${COLOR_WHITE}
 
 ## @var THEME_ERROR_COLOR
 ## @brief default color to display error messages
