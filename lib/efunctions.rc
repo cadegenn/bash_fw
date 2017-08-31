@@ -3,6 +3,14 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright	(c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 
+## @fn ebegin()
+## @brief display begin message
+## @param $message  the message to display
+ebegin() {
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_BEGIN_COLOR} *${COLOR_NORMAL} ${message} " >> ${STDOUT}
+}
+
 ## @fn ebreak()
 ## @brief print a break line
 ebreak() {
