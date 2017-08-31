@@ -53,6 +53,10 @@ source "${SOURCE_DIRNAME}/theme_default.rc"
 ## @var TTY
 ## @brief current tty connected to console if any
 declare TTY=`tty`
+if [ "${TTY}" == "not a tty" ]; then
+	TTY="/dev/stderr"
+	source "${SOURCE_DIRNAME}/theme_nocolor.rc"
+fi
 
 ## @var STDOUT
 ## @brief current standard output
