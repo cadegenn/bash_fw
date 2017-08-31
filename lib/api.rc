@@ -69,12 +69,9 @@ else
 	fi
 fi
 # load distribution-specific functions
-if [ -e "${DIRNAME}/lib/${OS_ID}.rc" ]; then
-	echo "found ${DIRNAME}/lib/${OS_ID}.rc. Loading it."
-	source "${DIRNAME}/lib/${OS_ID}.rc"
-else
-	echo "'${DIRNAME}/lib/${OS_ID}.rc' not found. Loading '${DIRNAME}/lib/defaults.rc' instead."
-	source "${DIRNAME}/lib/defaults.rc"
+if [ -r "${SOURCE_DIRNAME}/${OS_ID}.rc" ]; then
+	echo "found ${SOURCE_DIRNAME}/${OS_ID}.rc. Loading it."
+	source "${SOURCE_DIRNAME}/${OS_ID}.rc"
 fi
 # override by futur-released themable e*() functions
 
