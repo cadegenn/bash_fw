@@ -58,6 +58,10 @@ declare YES=
 ## @brief if not empty ask for confirmation before anything is executed
 declare ASK=
 
+## @var BASHFW_THEME
+## @brief specify color theme for pretty output
+declare BASHFW_THEME=ansi
+
 # load API
 source "${DIRNAME}/lib/api.rc" || {
 	echo "${DIRNAME}/lib/api.rc not found... Aborting."
