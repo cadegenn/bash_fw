@@ -148,3 +148,48 @@ ewarn() {
 	echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}" >> ${STDOUT}
 }
 
+# ---------------------------------------------------------------------------------------
+
+## @fn egetx()
+## @brief get x position of current cursor
+## @return (integer) current x position of cursor in terminal
+## @see @url https://unix.stackexchange.com/questions/88296/get-vertical-cursor-position
+egetx() {
+	exec < /dev/tty
+	oldstty=$(stty -g)
+	stty raw -echo min 0
+	## on my system, the following line can be replaced by the line below it
+	echo -en "\033[6n" > /dev/tty
+	## tput u7 > /dev/tty	# when TERM=xterm (and relatives)
+	IFS=';' read -r -d R -a pos
+	stty $oldstty
+	## change from one-based to zero based so they work with: tput cup $row $col
+	#row=$((${pos[0]:2} - 1))	# strip off the esc-[
+	col=$((${pos[1]} - 1))
+
+	#echo "(row,col): $row,$col"
+	echo ${col}
+}
+
+## @fn esetx()
+## @brief set x position of current cursor
+## @param $x new position to set cursor to
+## @see @url http://ascii-table.com/ansi-escape-sequences.php
+esetx() {
+	local new_x=${1}
+	local cur_x=$(egetx)
+
+	[ ! ${new_x} -ge 0 ] && return
+	[ ! ${cur_x} -ge 0 ] && return
+
+	if [ ${new_x} -gt ${cur_x} ]; then
+		local step=$((new_x - cur_x))
+		#echo -e "\033[${step}C ${new_x}"
+		tput cuf ${step}
+	else
+		local step=$((cur_x - new_x))
+		#echo -e "${new_x} \033[${step}D"
+		tput cub ${step}
+	fi
+}
+
