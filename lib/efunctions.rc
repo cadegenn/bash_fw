@@ -193,3 +193,36 @@ esetx() {
 	fi
 }
 
+# ---------------------------------------------------------------------------------------
+
+## @fn eexec()
+## @brief execute command
+## @param $cmd	full command line with parameters
+## @return (integer)	return code
+eexec() {
+	local CMD="$*"
+	#[ "${DEBUG}" ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.debug "DEBUG: ${CMD}"
+	if [ "${ASK}" ]; then
+		local ANSWER=$(equestion_yn "execute \"${CMD}\" ?" 'y')
+		[ ! "${ANSWER}" ] && return 0
+	fi
+	edebug "${CMD}" >> ${STDOUT}
+	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
+	if [ "${DEVEL}" ]; then
+		echo -ne "\n${THEME_DEVEL_COLOR}"
+		eval ${CMD}
+	elif [ "${DEBUG}" ]; then
+		echo -ne "${THEME_DEBUG_COLOR}"
+		(eval ${CMD}) > /dev/null
+	else
+		(eval ${CMD}) > /dev/null 2>&1
+	fi
+	echo -ne ${COLOR_NORMAL}
+	#echo ${CMD}
+	#exec ${CMD}
+	local RC=$?
+	#[ -f "${OUTPUT}" ] && [ ${VERBOSE} -gt 1 ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.info -f "${OUTPUT}" && rm -f "${OUTPUT}"
+	[ "${DEBUG}" ] && eend ${RC}
+	return ${RC}
+}
+
