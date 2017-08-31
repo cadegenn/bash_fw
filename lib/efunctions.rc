@@ -36,6 +36,37 @@ edevel() {
 	fi
 }
 
+## @fn eend()
+## @brief display end message
+## @param $rc  the status code to display
+## @see returncodes.rc
+eend() {
+	local rc=${1}
+	[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	esetx $((COLUMNS - ${#rc_done} - 16))
+	case ${rc} in
+		${RC_DONE})	 echo -ne "${rc_done}" >> ${STDOUT}
+						;;
+		${RC_FAILED})   echo -ne "${rc_failed}" >> ${STDOUT}
+						;;
+		${RC_RUNNING})  echo -ne "${rc_running}" >> ${STDOUT}
+						;;
+		${RC_MISSED})   echo -ne "${rc_missed}" >> ${STDOUT}
+						;;
+		${RC_SKIPPED})  echo -ne "${rc_skipped}" >> ${STDOUT}
+						;;
+		${RC_UNUSED})   echo -ne "${rc_unused}" >> ${STDOUT}
+						;;
+		${RC_UNKNOWN})  echo -ne "${rc_unknown}" >> ${STDOUT}
+						;;
+		${RC_DEAD})	 echo -ne "${rc_dead}" >> ${STDOUT}
+						;;
+		*)			  echo -ne "${rc_unknown}" >> ${STDOUT}
+						;;
+	esac
+
+}
+
 ## @fn eenter()
 ## @brief display message when entering something (a function for example or a loop)
 ## @param $message  the message to display
