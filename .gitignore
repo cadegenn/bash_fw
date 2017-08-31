@@ -1,3 +1,3 @@
 .*.swp
 *.conf
-doc/*
+doc/html
