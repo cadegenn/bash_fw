@@ -226,3 +226,59 @@ eexec() {
 	return ${RC}
 }
 
+# ---------------------------------------------------------------------------------------
+
+## @fn equestion()
+## @brief print a question
+## @param $message The question itself
+## @param $default Optional: the default answer. It will be displayed between angle brackets.
+## @param $is_passwd  Optional: if set to true, do not echo user input. Usefull for asking password
+## @return (string) response from the user
+equestion() {
+	local message="${1}"
+	local answer="${2}"
+	local passwd="${3}"
+    echo -ne "\n${INDENT}${THEME_QUESTION_COLOR} * QUE: ${message} ${COLOR_NORMAL}" >> ${TTY}
+	[ "${answer}" ] && echo -ne "[${THEME_QUESTION_DEFAULT_ANSWER_COLOR}${answer}${COLOR_NORMAL}] " >> ${TTY}
+
+	# -y or -yes was specified on command line
+    [ "${YES}" ] && echo ${answer} && return
+
+	[ "${passwd}" ] && read -s REPONSE || read REPONSE
+	echo ${REPONSE:-${answer}}
+}
+
+## @fn equestion_yn()
+## @brief print a boolean question
+## @param $message The question itself
+## @param $default Optional: the default answer. It has to by 'y' or 'n'
+## @return (string) response from the user
+equestion_yn() {
+	local message="${1}"
+	local answer="${2}"
+	case ${answer} in
+		[yY]*|1|[tT][rR][uU][eE])
+				answer="y"
+				;;
+		*)		answer="n"
+				;;
+	esac
+	local REPONSE=$(equestion "${message}" "${answer}")
+	case ${REPONSE,,} in
+		y|o|1|true)
+			echo "y"
+			;;
+		*)	echo
+			;;
+	esac
+}
+
+## @fn equestion_passwd()
+## @brief ask for a passwd
+## @param $message The question itself
+## @return (string) response from the user
+equestion_passwd() {
+	local message="${1}"
+	equestion "${message}" "" true
+}
+
