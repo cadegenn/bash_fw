@@ -3,19 +3,19 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright   (c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 
-source "${SOURCE_DIRNAME}/colors.rc"
+source "${SOURCE_DIRNAME}/colors_ansi.rc"
 
 ## @var THEME_BEGIN_COLOR
 ## @brief default color to display debug messages
-declare THEME_BEGIN_COLOR=${COLOR_GREEN}
+declare THEME_BEGIN_COLOR=${BLOD}${COLOR_GREEN}
 
 ## @var THEME_DEBUG_COLOR
 ## @brief default color to display debug messages
-declare THEME_DEBUG_COLOR=${COLOR_SILVER}
+declare THEME_DEBUG_COLOR=${COLOR_WHITE}
 
 ## @var THEME_DEVEL_COLOR
 ## @brief default color to display development messages
-declare THEME_DEVEL_COLOR=${COLOR_GRAY}
+declare THEME_DEVEL_COLOR=${COLOR_ITALIC}${COLOR_WHITE}
 
 ## @var THEME_ERROR_COLOR
 ## @brief default color to display error messages
@@ -31,7 +31,7 @@ declare THEME_INFO_COLOR=${COLOR_GREEN}
 
 ## @var THEME_QUESTION_COLOR
 ## @brief default color to display informations
-declare THEME_QUESTION_COLOR=${COLOR_BLUE}
+declare THEME_QUESTION_COLOR=${COLOR_CYAN}
 
 ## @var THEME_QUESTION_DEFAULT_ANSWER_COLOR
 ## @brief default color to display informations
@@ -39,7 +39,11 @@ declare THEME_QUESTION_DEFAULT_ANSWER_COLOR=${COLOR_GREEN}
 
 ## @var THEME_TITLE_COLOR
 ## @brief default color to display titles
-declare THEME_TITLE_COLOR=${COLOR_LIME}
+declare THEME_TITLE_COLOR=${BOLD}${COLOR_GREEN}
+
+## @var THEME_SUBTITLE_COLOR
+## @brief default color to display subtitles
+declare THEME_SUBTITLE_COLOR=${COLOR_UNDERSCORE}${COLOR_GREEN}
 
 ## @var THEME_VERBOSE_COLOR
 ## @brief default color to display verbose informations
