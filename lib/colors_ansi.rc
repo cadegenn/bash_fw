@@ -3,9 +3,9 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright	Copyright (c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @note	You can display all 256 foreground colors of a terminal by entering
-##			for a in {0..8}; do for f in {30..37}; do for b in {40..47}; do echo -e "\e[${a};${f};${b}m\\\e[${a};${f};${b}m\e[0m"; done; done; done | column -c 192
+##			for a in {0..8}; do for f in {30..37}; do for b in {40..47}; do echo -e "\e[${a};${f};${b}m\\\e[${a};${f};${b}m\e[0m"; done; done; done | column -c 224 | sed -e 's/\t/ /g'
 ##			or
-##			for a in {0..8}; do for b in {40..47}; do for f in {30..37}; do echo -e "\e[${a};${f};${b}m\\\e[${a};${f};${b}m\e[0m"; done; done; done | column -c 192
+##			for a in {0..8}; do for b in {40..47}; do for f in {30..37}; do echo -e "\e[${a};${f};${b}m\\\e[${a};${f};${b}m\e[0m"; done; done; done | column -c 224 | sed -e 's/\t/ /g'
 ## @url		http://ascii-table.com/ansi-escape-sequences.php
 ##
 
