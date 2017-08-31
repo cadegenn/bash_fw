@@ -93,6 +93,8 @@ trap onExit HUP INT KILL TERM EXIT
 # parse command line
 while [ $# -gt 0 ]; do
 	case $1 in
+		-v)		VERBOSE=true
+				;;
 		-d)		DEBUG=true
 				;;
 		-dev)	DEVEL=true
