@@ -36,3 +36,13 @@ edebug "MYVAR = ${MYVAR}"
 eexec cp -a afile.txt /to/another/place/
 ```
 
+## Get the complete documentation
+
+You can generate the doc with Doxygen. Simply do the following
+  * install doxygen for your distribution
+  * execute this
+```shell
+cd doc
+doxygen Doxyfile
+```
+
