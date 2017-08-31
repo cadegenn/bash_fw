@@ -80,6 +80,14 @@ eleave() {
 	fi
 }
 
+## @fn esubtitle()
+## @brief display begin message
+## @param $message  the message to display
+esubtitle() {
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_TITLE_COLOR} * ${THEME_SUBTITLE_COLOR}${message}${COLOR_NORMAL}" >> ${STDOUT}
+}
+
 ## @fn etitle()
 ## @brief display a title
 ## @param $message  the title to display
