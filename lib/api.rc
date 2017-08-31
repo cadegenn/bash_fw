@@ -45,10 +45,10 @@ TMP=/tmp/${BASENAME}.$$
 ## @brief define DIRNAME if it is not already defined (api.rc is sourced from shell)
 DIRNAME=${DIRNAME:=.}
 
-source "/lib/lsb/init-functions"
-
-source "${DIRNAME}/lib/colors.rc"
-source "${DIRNAME}/lib/returncodes.rc"
+#source "/lib/lsb/init-functions"
+source "${SOURCE_DIRNAME}/efunctions.rc"
+source "${SOURCE_DIRNAME}/returncodes.rc"
+source "${SOURCE_DIRNAME}/theme_default.rc"
 
 ## @var TTY
 ## @brief current tty connected to console if any
@@ -77,8 +77,6 @@ else
 	source "${DIRNAME}/lib/defaults.rc"
 fi
 # override by futur-released themable e*() functions
-source "${SOURCE_DIRNAME}/efunctions.rc"
-source "${SOURCE_DIRNAME}/theme_default.rc"
 
 # detect network
 ## @var ETH
