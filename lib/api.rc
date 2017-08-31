@@ -49,6 +49,8 @@ DIRNAME=${DIRNAME:=.}
 source "${SOURCE_DIRNAME}/efunctions.rc"
 source "${SOURCE_DIRNAME}/returncodes.rc"
 source "${SOURCE_DIRNAME}/theme_default.rc"
+[ -e "${SOURCE_DIRNAME}/messages.en_US.rc" ] && source "${SOURCE_DIRNAME}/messages.en_US.rc"
+[ -e "${SOURCE_DIRNAME}/messages.${LANGUAGE}.rc" ] && source "${SOURCE_DIRNAME}/messages.${LANGUAGE}.rc"
 
 ## @var TTY
 ## @brief current tty connected to console if any
