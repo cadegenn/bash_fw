@@ -3,6 +3,8 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright   (c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 
+source "${SOURCE_DIRNAME}/colors.rc"
+
 ## @var THEME_DEBUG_COLOR
 ## @brief default color to display debug messages
 declare THEME_DEBUG_COLOR=${COLOR_SILVER}
