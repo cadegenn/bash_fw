@@ -264,6 +264,7 @@ equestion_yn() {
 		*)		answer="n"
 				;;
 	esac
+	[ "${YES}" ] && answer="y"
 	local REPONSE=$(equestion "${message}" "${answer}")
 	case ${REPONSE,,} in
 		y|o|1|true)
