@@ -209,11 +209,12 @@ eexec() {
 	edebug "${CMD}" >> ${STDOUT}
 	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
 	if [ "${DEVEL}" ]; then
-		echo -ne "\n${THEME_DEVEL_COLOR}"
-		eval ${CMD}
+		local output=$(eval ${CMD} 2>&1)
+		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}" >> ${STDOUT}
 	elif [ "${DEBUG}" ]; then
-		echo -ne "${THEME_DEBUG_COLOR}"
-		(eval ${CMD}) > /dev/null
+		local output=$(eval "${CMD}" 2>&1 > /dev/null)
+		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}" >> ${STDOUT}
+		#(eval ${CMD}) > /dev/null
 	else
 		(eval ${CMD}) > /dev/null 2>&1
 	fi
