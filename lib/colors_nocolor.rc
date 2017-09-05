@@ -1,4 +1,4 @@
-## @file colors_ansi.rc
+## @file colors_nocolor.rc
 ## @brief list usefull ANSI colors escape sequences under COLOR_ namespace
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright	Copyright (c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
