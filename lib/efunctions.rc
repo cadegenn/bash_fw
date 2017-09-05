@@ -150,6 +150,24 @@ ewarn() {
 
 # ---------------------------------------------------------------------------------------
 
+## @var INDENT
+## @brief current indentation
+declare -g INDENT=
+
+## @fn eindent()
+## @brief add indentation
+eindent() {
+	INDENT="  ${INDENT}"
+}
+
+## @fn eoutdent()
+## @brief remove indentation
+eoutdent() {
+	INDENT=${INDENT/  /}
+}
+
+# ---------------------------------------------------------------------------------------
+
 ## @fn egetx()
 ## @brief get x position of current cursor
 ## @return (integer) current x position of cursor in terminal
