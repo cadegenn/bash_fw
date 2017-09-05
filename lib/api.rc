@@ -131,7 +131,7 @@ else
 fi
 edevel "CPU_ARCH = ${CPU_ARCH}"
 # OS architecture
-ELF_VER=`file ./bin/bash | cut -d' ' -f3`
+ELF_VER=`file /bin/bash | cut -d' ' -f3`
 case "$ELF_VER" in
 	32-bit) OS_ARCH=x86 ;;
 	64-bit) OS_ARCH=x64 ;;
