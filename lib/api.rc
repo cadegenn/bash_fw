@@ -116,11 +116,11 @@ case ${MASK} in
 	24)	VLAN=$(echo ${IPADDRESS} | awk -F'.' '{print $1"."$2"."$3}')
 		;;
 esac
-edebug "ETH = ${ETH}"
-edebug "INETMASK = ${INETMASK}"
-edebug "IPADDRESS = ${IPADDRESS}"
-edebug "MASK = ${MASK}"
-edebug "VLAN = ${VLAN}"
+edevel "ETH = ${ETH}"
+edevel "INETMASK = ${INETMASK}"
+edevel "IPADDRESS = ${IPADDRESS}"
+edevel "MASK = ${MASK}"
+edevel "VLAN = ${VLAN}"
 
 # get architectures
 # Processor architecture
@@ -129,7 +129,7 @@ if [ "`cat /proc/cpuinfo | grep ^flags | grep \" lm\"`" ]; then
 else
 	CPU_ARCH=x86
 fi
-edebug "CPU_ARCH = ${CPU_ARCH}"
+edevel "CPU_ARCH = ${CPU_ARCH}"
 # OS architecture
 ELF_VER=`file ./bin/bash | cut -d' ' -f3`
 case "$ELF_VER" in
@@ -137,7 +137,7 @@ case "$ELF_VER" in
 	64-bit) OS_ARCH=x64 ;;
 	*)	OS_ARCH=unknown_arch ;;
 esac
-edebug "OS_ARCH = ${OS_ARCH}"
+edevel "OS_ARCH = ${OS_ARCH}"
 
 #
 # @brief	Question()	ask a question and wait for a response
