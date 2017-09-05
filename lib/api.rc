@@ -74,6 +74,9 @@ fi
 ## Every e*() functions write to this device
 declare STDOUT=/dev/stdout
 
+# set tabs to 4 spaces to gain space on screen
+tabs 4
+
 # auto-detect things
 if [ $(which lsb_release 2> /dev/null) ]; then
 	OS_ID=$(lsb_release -is | cut -d' ' -f1 | tr [[:upper:]] [[:lower:]])
