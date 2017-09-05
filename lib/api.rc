@@ -48,9 +48,14 @@ DIRNAME=${DIRNAME:=.}
 #source "/lib/lsb/init-functions"
 source "${SOURCE_DIRNAME}/efunctions.rc"
 source "${SOURCE_DIRNAME}/returncodes.rc"
-source "${SOURCE_DIRNAME}/theme_default.rc"
 if [ "${BASHFW_THEME}" ]; then
-	[ -e "${SOURCE_DIRNAME}/theme_${BASHFW_THEME}.rc" ] && source "${SOURCE_DIRNAME}/theme_${BASHFW_THEME}.rc"
+	if [ -e "${SOURCE_DIRNAME}/theme_${BASHFW_THEME}.rc" ]; then
+		source "${SOURCE_DIRNAME}/theme_${BASHFW_THEME}.rc"
+	else
+		ewarn "Theme '${BASHFW_THEME}' not found. Use '-theme list' on the command line to see themes available."
+		ewarn "Using default theme."
+		source "${SOURCE_DIRNAME}/theme_default.rc"
+	fi
 fi
 [ -e "${SOURCE_DIRNAME}/messages.en_US.rc" ] && source "${SOURCE_DIRNAME}/messages.en_US.rc"
 [ -e "${SOURCE_DIRNAME}/messages.${LANGUAGE}.rc" ] && source "${SOURCE_DIRNAME}/messages.${LANGUAGE}.rc"
