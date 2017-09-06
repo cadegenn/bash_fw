@@ -8,15 +8,19 @@
 ## @param $message  the message to display
 ebegin() {
 	local message=${@}
-	echo -ne "\n${INDENT}${THEME_BEGIN_COLOR} *${COLOR_NORMAL} ${message} " >> ${STDOUT}
+	echo -ne "\n${INDENT}${THEME_BEGIN_COLOR} *${COLOR_NORMAL} ${message} "
 }
 
 ## @fn ebreak()
 ## @brief print a break line
 ebreak() {
-	[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	if [ ${HAVE_TTY} -eq 0 ]; then
+		[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	else
+		COLUMNS=80
+	fi
 	echo
-	for i in $(seq ${COLUMNS}); do echo -n '-' >> ${STDOUT}; done
+	for i in $(seq ${COLUMNS}); do echo -n '-'; done
 }
 
 ## @fn edebug()
@@ -24,7 +28,7 @@ ebreak() {
 ## @param $message  the message to display
 edebug() {
 	if [ ${DEBUG} ]; then
-		echo -ne "\n${INDENT}${THEME_DEBUG_COLOR} * DBG: $@${COLOR_NORMAL}" >> ${STDOUT}
+		echo -ne "\n${INDENT}${THEME_DEBUG_COLOR} * DBG: $@${COLOR_NORMAL}"
 	fi
 }
 
@@ -33,7 +37,7 @@ edebug() {
 ## @param $message  the message to display
 edevel() {
 	if [ ${DEVEL} ]; then
-		echo -ne "\n${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}" >> ${STDOUT}
+		echo -ne "\n${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}"
 	fi
 }
 
@@ -43,26 +47,30 @@ edevel() {
 ## @see returncodes.rc
 eend() {
 	local rc=${1}
-	[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	if [ ${HAVE_TTY} -eq 0 ]; then
+		[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	else
+        COLUMNS=80
+    fi
 	esetx $((COLUMNS - ${#rc_done} - 16))
 	case ${rc} in
-		${RC_DONE})	 echo -ne "${rc_done}" >> ${STDOUT}
+		${RC_DONE})		echo -ne "${rc_done}"
 						;;
-		${RC_FAILED})   echo -ne "${rc_failed}" >> ${STDOUT}
+		${RC_FAILED})   echo -ne "${rc_failed}"
 						;;
-		${RC_RUNNING})  echo -ne "${rc_running}" >> ${STDOUT}
+		${RC_RUNNING})  echo -ne "${rc_running}"
 						;;
-		${RC_MISSED})   echo -ne "${rc_missed}" >> ${STDOUT}
+		${RC_MISSED})   echo -ne "${rc_missed}"
 						;;
-		${RC_SKIPPED})  echo -ne "${rc_skipped}" >> ${STDOUT}
+		${RC_SKIPPED})  echo -ne "${rc_skipped}"
 						;;
-		${RC_UNUSED})   echo -ne "${rc_unused}" >> ${STDOUT}
+		${RC_UNUSED})   echo -ne "${rc_unused}"
 						;;
-		${RC_UNKNOWN})  echo -ne "${rc_unknown}" >> ${STDOUT}
+		${RC_UNKNOWN})  echo -ne "${rc_unknown}"
 						;;
-		${RC_DEAD})	 echo -ne "${rc_dead}" >> ${STDOUT}
+		${RC_DEAD})		echo -ne "${rc_dead}"
 						;;
-		*)			  echo -ne "${rc_unknown}" >> ${STDOUT}
+		*)				echo -ne "${rc_unknown}"
 						;;
 	esac
 
@@ -74,7 +82,7 @@ eend() {
 eenter() {
 	local message=${@}
 	if [ ${DEVEL} ]; then
-		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}" >> ${STDOUT}
+		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}"
 	fi
 }
 
@@ -83,7 +91,7 @@ eenter() {
 ## @param $message  the error message to display
 eerror() {
 	local message=${@}
-	echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}" >> ${STDOUT}
+	echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}"
 }
 
 ## @fn efatal()
@@ -99,7 +107,7 @@ efatal() {
 ## @param $message  the message to display
 einfo() {
 	local message=${@}
-	echo -ne "\n${INDENT}${THEME_INFO_COLOR} *${COLOR_NORMAL} ${message}" >> ${STDOUT}
+	echo -ne "\n${INDENT}${THEME_INFO_COLOR} *${COLOR_NORMAL} ${message}"
 }
 
 ## @fn eleave()
@@ -108,7 +116,7 @@ einfo() {
 eleave() {
 	local message=${@}
 	if [ ${DEVEL} ]; then
-		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}" >> ${STDOUT}
+		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}"
 	fi
 }
 
@@ -117,7 +125,7 @@ eleave() {
 ## @param $message  the message to display
 esubtitle() {
 	local message=${@}
-	echo -ne "\n${INDENT}${THEME_TITLE_COLOR} * ${THEME_SUBTITLE_COLOR}${message}${COLOR_NORMAL}" >> ${STDOUT}
+	echo -ne "\n${INDENT}${THEME_TITLE_COLOR} * ${THEME_SUBTITLE_COLOR}${message}${COLOR_NORMAL}"
 }
 
 ## @fn etitle()
@@ -125,9 +133,9 @@ esubtitle() {
 ## @param $message  the title to display
 etitle() {
 	local message=${@}
-	echo -e -n "\n${THEME_TITLE_COLOR} " >> ${STDOUT}
+	echo -e -n "\n${THEME_TITLE_COLOR} "
 	for i in $(seq $((${#message}+6))); do echo -n '*'; done
-	echo -e "\n ** ${message} ** ${COLOR_NORMAL}" >> ${STDOUT}
+	echo -e "\n ** ${message} ** ${COLOR_NORMAL}"
 }
 
 ## @fn everbose()
@@ -136,7 +144,7 @@ etitle() {
 everbose() {
 	local message=${@}
 	if [ ${VERBOSE} ]; then
-		echo -ne "\n${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}" >> ${STDOUT}
+		echo -ne "\n${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}"
 	fi
 }
 
@@ -145,7 +153,7 @@ everbose() {
 ## @param $message  the warning to display
 ewarn() {
 	local message=${@}
-	echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}" >> ${STDOUT}
+	echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}"
 }
 
 # ---------------------------------------------------------------------------------------
@@ -206,11 +214,19 @@ esetx() {
 	if [ ${new_x} -gt ${cur_x} ]; then
 		local step=$((new_x - cur_x))
 		#echo -e "\033[${step}C ${new_x}"
-		tput cuf ${step}
+		if [ ${HAVE_TTY} -eq 0 ]; then
+			tput cuf ${step}
+		else
+			for i in $(seq ${step}); do echo -n ' '; done
+		fi
 	else
 		local step=$((cur_x - new_x))
 		#echo -e "${new_x} \033[${step}D"
-		tput cub ${step}
+		if [ ${HAVE_TTY} -eq 0 ]; then
+			tput cub ${step}
+		else
+			for i in $(seq ${step}); do echo -n ' '; done
+		fi
 	fi
 }
 
@@ -227,14 +243,14 @@ eexec() {
 		local ANSWER=$(equestion_yn "execute \"${CMD}\" ?" 'y')
 		[ ! "${ANSWER}" ] && return 0
 	fi
-	edebug "${CMD}" >> ${STDOUT}
+	edebug "${CMD}"
 	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
 	if [ "${DEVEL}" ]; then
 		local output=$(eval ${CMD} 2>&1)
-		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}" >> ${STDOUT}
+		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}"
 	elif [ "${DEBUG}" ]; then
 		local output=$(eval "${CMD}" 2>&1 > /dev/null)
-		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}" >> ${STDOUT}
+		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}"
 		#(eval ${CMD}) > /dev/null
 	else
 		(eval ${CMD}) > /dev/null 2>&1
