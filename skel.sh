@@ -74,13 +74,18 @@ usage() {
 	cat <<- EOF
 		DESCRIPTION: ${BASENAME} do some things
 		USAGE: ${BASENAME} [-d] [-dev] [-h] [-y]
-		    -h    help screen (this screen)
-		    -d    debug mode: print VARIABLE=value pairs
-		    -dev  devel mode: print additional development data
-		    -ask  ask for user confirmation for each individual eexec() call
-		          NOTE: it is not affected by -y
-		    -y    assume 'yes' to all questions
-		    -s    simulate: do not really execute commands
+		 	-h		help screen (this screen)
+		 	-v		verbose mode: print more messages
+		 	-d		debug mode: print VARIABLE=value pairs
+		 	-dev	devel mode: print additional development data
+		 	-ask	ask for user confirmation for each individual eexec() call
+		 			NOTE: it is not affected by -y
+		 	-y		assume 'yes' to all questions
+		 	-s		simulate: do not really execute commands
+		 	-nc		no color. Do not use color theme.
+		 			-nc is a shortcut for -theme nocolor
+		 	-theme 	use specified theme as color scheme.
+		 			use '-theme list' to list available themes.
 	EOF
 	exit
 }
@@ -114,8 +119,17 @@ while [ $# -gt 0 ]; do
 				;;
 		-s)		SIMULATE=true
 				;;
-		--update)
-				update
+		-nc)	BASHFW_THEME="nocolor"
+				;;
+		-theme)	shift
+				case "${1}" in
+					list)
+							find ${DIRNAME}/lib/ -name "theme_*.rc" -printf "%f\n" | cut -d '_' -f2 | cut -d '.' -f1 | tr -s '\n' ' '
+							echo # if this echo is not present, the above line do not display anything
+							;;
+					*)		BASHFW_THEME="${1}"
+							;;
+				esac
 				;;
 	esac
 	shift
