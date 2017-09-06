@@ -62,12 +62,6 @@ declare ASK=
 ## @brief specify color theme for pretty output
 declare BASHFW_THEME=ansi
 
-# load API
-source "${DIRNAME}/lib/api.rc" || {
-	echo "${DIRNAME}/lib/api.rc not found... Aborting."
-	exit 1
-}
-
 ## @fn usage()
 ## @brief Print usage informations (help screen)
 usage() {
@@ -134,6 +128,12 @@ while [ $# -gt 0 ]; do
 	esac
 	shift
 done
+
+# load API
+source "${DIRNAME}/lib/api.rc" || {
+	echo "${DIRNAME}/lib/api.rc not found... Aborting."
+	exit 1
+}
 
 ## @fn main()
 ## @brief	function containing main program
