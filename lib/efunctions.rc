@@ -238,6 +238,8 @@ esetx() {
 ## @return (integer)	return code
 eexec() {
 	local CMD="$*"
+	local RC=0
+	local output=
 	#[ "${DEBUG}" ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.debug "DEBUG: ${CMD}"
 	if [ "${ASK}" ]; then
 		local ANSWER=$(equestion_yn "execute \"${CMD}\" ?" 'y')
@@ -246,19 +248,32 @@ eexec() {
 	edebug "${CMD}"
 	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
 	if [ "${DEVEL}" ]; then
-		local output=$(eval ${CMD} 2>&1)
+		#local output=$(${CMD} 2>&1) # $? do NOT work
+		output=$(${CMD} 2>&1) # $? DO work
+		#local output=$(${CMD}) # $? do NOT work
+		# local output=$(eval ${CMD}) # $? do NOT work
+		#output=$(eval ${CMD}) # $? DO work
+		#${CMD} # $? DO work
+		#eval ${CMD} # $? DO work
+		RC=$?
 		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}"
+		echo -ne " (RC = ${RC}) "
 	elif [ "${DEBUG}" ]; then
-		local output=$(eval "${CMD}" 2>&1 > /dev/null)
+		output=$(${CMD} 2>&1 > /dev/null)
+		#output=$(${CMD})
+		#${CMD}
+		RC=$?
 		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}"
 		#(eval ${CMD}) > /dev/null
+		echo -ne " (RC = ${RC}) "
 	else
-		(eval ${CMD}) > /dev/null 2>&1
+		${CMD} > /dev/null 2>&1
+		RC=$?
 	fi
 	echo -ne ${COLOR_NORMAL}
 	#echo ${CMD}
 	#exec ${CMD}
-	local RC=$?
+	#local RC=$?
 	#[ -f "${OUTPUT}" ] && [ ${VERBOSE} -gt 1 ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.info -f "${OUTPUT}" && rm -f "${OUTPUT}"
 	[ "${DEBUG}" ] && eend ${RC}
 	return ${RC}
