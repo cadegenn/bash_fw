@@ -62,8 +62,18 @@ fi
 
 ## @var TTY
 ## @brief current tty connected to console if any
-declare TTY=`tty`
-if [ "${TTY}" == "not a tty" ]; then
+declare TTY=$(tty)
+
+## @var HAVE_TTY
+## @brief Is this script attached to a tty ?
+## @note	0 means I DO have a tty attached
+##			1 means I do NOT have a tty attached
+tty > /dev/null 2>&1
+declare HAVE_TTY=$?
+edevel "HAVE_TTY = ${HAVE_TTY}"
+
+#if [ "${TTY}" == "not a tty" ]; then
+if [ ${HAVE_TTY} -ne 0 ]; then
 	TTY="/dev/stderr"
 	source "${SOURCE_DIRNAME}/theme_nocolor.rc"
 fi
@@ -75,7 +85,7 @@ fi
 declare STDOUT=/dev/stdout
 
 # set tabs to 4 spaces to gain space on screen
-tabs 4
+[ ${HAVE_TTY} -eq 0 ] && tabs 4
 
 # auto-detect things
 if [ $(which lsb_release 2> /dev/null) ]; then
