@@ -73,6 +73,10 @@ declare ASK=
 ## @brief specify color theme for pretty output
 declare BASHFW_THEME=ansi
 
+## @var ARGV
+## @brief array of user parameters
+declare -a ARGV
+
 ## @fn usage()
 ## @brief Print usage informations (help screen)
 usage() {
@@ -141,6 +145,9 @@ while [ $# -gt 0 ]; do
 							;;
 				esac
 				;;
+		*)		# store user-defined command line-arguments
+				ARGV=("${ARGV[@]}" "${1}")
+				;;
 	esac
 	shift
 done
@@ -156,6 +163,16 @@ source "${DIRNAME}/lib/api.rc" || {
 main() {
 
 	eenter "${FUNCNAME}()"
+
+	# parsing user-defined command line arguments
+	for a in "$@"; do
+	    case $a in
+			*)	edevel "a = ${a}"
+				;;
+		esac
+		shift
+	done
+
 	#################################################
 	##
 	## YOUR SCRIPT GOES HERE !
@@ -173,5 +190,6 @@ main() {
 
 }
 
-main
+main "${ARGV[@]}"
+unset ARGV
 echo
