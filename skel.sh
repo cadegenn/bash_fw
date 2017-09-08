@@ -42,6 +42,10 @@ else
 	DIRNAME=$(cd `dirname "$0"`; pwd)
 fi
 
+## @var VERBOSE
+## @brief instruct script to print verbose informations
+declare VERBOSE=
+
 ## @var DEBUG
 ## @brief instruct script to print debug informations
 declare DEBUG=
