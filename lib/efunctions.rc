@@ -7,6 +7,7 @@
 ## @brief display begin message
 ## @param $message  the message to display
 ebegin() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_BEGIN_COLOR} *${COLOR_NORMAL} ${message} "
 }
@@ -14,6 +15,7 @@ ebegin() {
 ## @fn ebreak()
 ## @brief print a break line
 ebreak() {
+	[ "${QUIET}" ] && return
 	if [ ${HAVE_TTY} -eq 0 ]; then
 		[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
 	else
@@ -27,6 +29,7 @@ ebreak() {
 ## @brief display debug message
 ## @param $message  the message to display
 edebug() {
+	[ "${QUIET}" ] && return
 	if [ ${DEBUG} ]; then
 		echo -ne "\n${INDENT}${THEME_DEBUG_COLOR} * DBG: $@${COLOR_NORMAL}"
 	fi
@@ -36,6 +39,7 @@ edebug() {
 ## @brief display message to help development
 ## @param $message  the message to display
 edevel() {
+	[ "${QUIET}" ] && return
 	if [ ${DEVEL} ]; then
 		echo -ne "\n${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}"
 	fi
@@ -46,6 +50,7 @@ edevel() {
 ## @param $rc  the status code to display
 ## @see returncodes.rc
 eend() {
+	[ "${QUIET}" ] && return
 	local rc=${1}
 	if [ ${HAVE_TTY} -eq 0 ]; then
 		[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
@@ -80,6 +85,7 @@ eend() {
 ## @brief display message when entering something (a function for example or a loop)
 ## @param $message  the message to display
 eenter() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	if [ ${DEVEL} ]; then
 		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}"
@@ -90,6 +96,7 @@ eenter() {
 ## @brief display error message
 ## @param $message  the error message to display
 eerror() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}"
 }
@@ -98,6 +105,7 @@ eerror() {
 ## @brief display error message and exit
 ## @param $message  the error message to display
 efatal() {
+	[ "${QUIET}" ] && exit 1
 	eerror "$@\n"
 	exit 1
 }
@@ -106,6 +114,7 @@ efatal() {
 ## @brief display info message
 ## @param $message  the message to display
 einfo() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_INFO_COLOR} *${COLOR_NORMAL} ${message}"
 }
@@ -114,6 +123,7 @@ einfo() {
 ## @brief display message when leaving something (a function for example or a loop)
 ## @param $message  the message to display
 eleave() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	if [ ${DEVEL} ]; then
 		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}"
@@ -124,6 +134,7 @@ eleave() {
 ## @brief display begin message
 ## @param $message  the message to display
 esubtitle() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_TITLE_COLOR} * ${THEME_SUBTITLE_COLOR}${message}${COLOR_NORMAL}"
 }
@@ -132,6 +143,7 @@ esubtitle() {
 ## @brief display a title
 ## @param $message  the title to display
 etitle() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -e -n "\n${THEME_TITLE_COLOR} "
 	for i in $(seq $((${#message}+6))); do echo -n '*'; done
@@ -142,6 +154,7 @@ etitle() {
 ## @brief display verbose message
 ## @param $message  the message to display
 everbose() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	if [ ${VERBOSE} ]; then
 		echo -ne "\n${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}"
@@ -152,6 +165,7 @@ everbose() {
 ## @brief display warning message
 ## @param $message  the warning to display
 ewarn() {
+	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}"
 }
@@ -256,6 +270,7 @@ eexec() {
 		#${CMD} # $? DO work
 		#eval ${CMD} # $? DO work
 		RC=$?
+		[ "${QUIET}" ] && return ${RC}
 		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}"
 		echo -ne " (RC = ${RC}) "
 	elif [ "${DEBUG}" ]; then
@@ -263,12 +278,14 @@ eexec() {
 		#output=$(${CMD})
 		#${CMD}
 		RC=$?
+		[ "${QUIET}" ] && return ${RC}
 		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}"
 		#(eval ${CMD}) > /dev/null
 		echo -ne " (RC = ${RC}) "
 	else
 		${CMD} > /dev/null 2>&1
 		RC=$?
+		[ "${QUIET}" ] && return ${RC}
 	fi
 	echo -ne ${COLOR_NORMAL}
 	#echo ${CMD}
@@ -291,6 +308,10 @@ equestion() {
 	local message="${1}"
 	local answer="${2}"
 	local passwd="${3}"
+
+	# -q or -quiet was specified on command line
+	[ "${QUIET}" ] && echo ${answer} && return
+
     echo -ne "\n${INDENT}${THEME_QUESTION_COLOR} * QUE: ${message} ${COLOR_NORMAL}" >> ${TTY}
 	[ "${answer}" ] && echo -ne "[${THEME_QUESTION_DEFAULT_ANSWER_COLOR}${answer}${COLOR_NORMAL}] " >> ${TTY}
 

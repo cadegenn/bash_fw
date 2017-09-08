@@ -42,6 +42,13 @@ else
 	DIRNAME=$(cd `dirname "$0"`; pwd)
 fi
 
+## @var QUIET
+## @brief instruct script to print nothing
+## @note	QUIET supersedes all other log level informations like VERBOSE, DEBUG and DEVEL
+##			However, it can still log to a file or to a syslog if defined
+## @note	QUIET imply YES. So be careful specifying default values.
+declare QUIET=
+
 ## @var VERBOSE
 ## @brief instruct script to print verbose informations
 declare VERBOSE=
@@ -73,6 +80,7 @@ usage() {
 		DESCRIPTION: ${BASENAME} do some things
 		USAGE: ${BASENAME} [-d] [-dev] [-h] [-y]
 		 	-h		help screen (this screen)
+		 	-q		quiet: do not print anything to the console
 		 	-v		verbose mode: print more messages
 		 	-d		debug mode: print VARIABLE=value pairs
 		 	-dev	devel mode: print additional development data
@@ -100,6 +108,10 @@ trap onExit HUP INT KILL TERM EXIT
 # parse command line
 while [ $# -gt 0 ]; do
 	case $1 in
+		-q)		QUIET=true
+				ASK=
+				YES=true
+				;;
 		-v)		VERBOSE=true
 				;;
 		-d)		DEBUG=true
