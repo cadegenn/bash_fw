@@ -165,9 +165,9 @@ main() {
 	eenter "${FUNCNAME}()"
 
 	# parsing user-defined command line arguments
-	for a in "$@"; do
-	    case $a in
-			*)	edevel "a = ${a}"
+	while [ $# -gt 0 ]; do
+	    case $1 in
+			*)	edevel "ARGV[1] = ${1}"
 				;;
 		esac
 		shift
