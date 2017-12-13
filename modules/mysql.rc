@@ -1,0 +1,72 @@
+## @file mysql.rc
+## @brief Resource file for mysql calls
+## @author Charles-Antoine Degennes <cadegenn@univ-lr.fr>
+
+#
+# 2015.12.10, DCA   inital version
+#
+
+## @var MYSQL_DATE
+## @brief mysql formatted date
+declare MYSQL_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+
+## @var BASH_DATE
+## @brief bash formatted date
+declare BASH_DATE=$(date +"%Y%m%d.%H%M%S")
+
+## @fn mysql_exist_db_table_column()
+## @brief check if a column exist into given table
+## @param	$DBNAME 	(string)	database name
+## @param	$TABLENAME	(string)	table name
+## @param	$COLUMNNAME	(string)	column name
+## @retval true if it exist
+## @retval false otherwise
+mysql_exist_db_table_column() {
+	local DBNAME=${1}
+	local TABLENAME=${2}
+	local COLUMNNAME=${3}
+	set -f
+	eexec "${MYSQLQUERY} \"SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '${DBNAME}' AND TABLE_NAME = '${TABLENAME}' AND COLUMN_NAME = '${COLUMNNAME}'\""
+	local RC=$?
+	set +f
+	return ${RC}
+}
+
+## @fn mysql_update_table_column_data()
+## @brief update data into database
+## @param	$TABLENAME	(string)	table name
+## @param	$ID			(int)		id
+## @param	$COLUMNNAME	(string)	column name
+## @param	$DATA		(string)	data value
+## @retval true if it exist
+## @retval false otherwise
+mysql_update_table_column_data() {
+	local TABLENAME=${1}
+	local ID=${2}
+	local COLUMNNAME=${3}
+	local DATA=${4}
+	if ! mysql_exist_db_table_column ${DATABASE} hosts "${KEY}"; then
+		eerror "COLUMN '${KEY}' does not exist in TABLE 'hosts' of DATABASE '${DATABASE}'"
+		return $(false)
+	fi
+	eexec "${MYSQLQUERY} \"UPDATE ${TABLENAME} SET ${COLUMNNAME}='${DATA}' WHERE id='${ID}'\""
+	local RC=$?
+	return ${RC}
+}
+
+## @fn mysql_insert_table_column_data()
+## @brief insert data into database
+## @param	$TABLENAME	(string)	table name
+## @param	$COLUMNNAME	(string)	column name
+## @param	$DATA		(string)	data value
+## @retval true if it exist
+## @retval false otherwise
+mysql_insert_table_column_data() {
+	local TABLENAME=${1}
+	local COLUMNNAME=${2}
+	local DATA=${3}
+	eexec ${MYSQLQUERY} "INSERT INTO ${TABLENAME} (${COLUMNNAME}) VALUE ("${DATA}")"
+	local RC=$?
+	return ${RC}
+}
+
