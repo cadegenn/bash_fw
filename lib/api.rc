@@ -38,7 +38,6 @@ declare SOURCE_BASENAME=$(basename ${BASH_SOURCE})
 declare SOURCE_DIRNAME=$(cd $(dirname ${BASH_SOURCE}); pwd)
 
 # default values
-SIMULATE=
 TMP=/tmp/${BASENAME}.$$
 
 ## @var DIRNAME
