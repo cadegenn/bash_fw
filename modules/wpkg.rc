@@ -1,6 +1,12 @@
 ## @file wpkg.rc
 ## @brief Resource file for wpkg
 ## @author Charles-Antoine Degennes <cadegenn@univ-lr.fr>
+## @warning First, you have to get the Id of your object, given its `id-text` or its `name` using according function
+## @warning All other functions have to take an id as first argument
+## @warning You can retrive each object's id with
+## @warning * wpkg_getHostIdFromName "myHostName[0-9]"
+## @warning * wpkg_getProfileIdFromName "myProfile"
+## @warning * wpkg_getPackageIdFromName "id-text-of-package"
 
 ## @var MYSQLDUMP_OPTIONS
 ## @brief MYSQL specific options
