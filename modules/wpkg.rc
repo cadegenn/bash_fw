@@ -163,6 +163,16 @@ wpkg_displayHostPackages() {
 	local HOST_ID=$1
 	[ ! "${HOST_ID}" ] && return $(false)
 
+}
+
+## @fn wpkg_getAllPackagesFromHost()
+## @brief	Get all package ids associated to a host
+## @param	$id		host id
+## @return	(array)	list of all ids of packages associated to host
+wpkg_getAllPackagesFromHost() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+
 	local MAIN_PROFILE=$(wpkg_getMainProfileIdFromHostId ${HOST_ID})
 	local ADDITIONAL_PROFILES_ID=$(wpkg_getAdditionalProfilesFromHostId ${HOST_ID} "true")
 	local LIST_PACKAGES_ID=
