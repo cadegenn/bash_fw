@@ -164,7 +164,7 @@ wpkg_displayHostPackages() {
 	[ ! "${HOST_ID}" ] && return $(false)
 
 	local MAIN_PROFILE=$(wpkg_getMainProfileIdFromHostId ${HOST_ID})
-	local ADDITIONAL_PROFILES_ID=$(wpkg_getAllProfilesFromHostId ${HOST_ID} "true")
+	local ADDITIONAL_PROFILES_ID=$(wpkg_getAdditionalProfilesFromHostId ${HOST_ID} "true")
 	local LIST_PACKAGES_ID=
 	for id in ${MAIN_PROFILE} ${ADDITIONAL_PROFILES_ID}; do
 		LIST_PACKAGES_ID="${LIST_PACKAGES_ID} $(wpkg_getPackageIdInProfileId ${id})"
@@ -212,12 +212,12 @@ wpkg_getMainProfileIdFromHostId() {
 	echo ${PROFILE_ID}
 }
 
-## @fn wpkg_getAllProfilesFromHostId()
+## @fn wpkg_getAdditionalProfilesFromHostId()
 ## @brief	Get a list of profile ids associated with a host id
 ## @param	(int)	host id
 ## @param	$recurse	true: recursiveley search for dependency profiles, false: do not search down dependency tree
 ## @return	(array)	list of profile id
-wpkg_getAllProfilesFromHostId() {
+wpkg_getAdditionalProfilesFromHostId() {
 	local HOST_ID="$1"
 	local RECURSE="${2}"
 	[ ! "${HOST_ID}" ] && return $(false)
