@@ -202,11 +202,14 @@ wpkg_deleteHostAdditionalProfileId() {
 
 ## @fn wpkg_getMainProfileIdFromHost()
 ## @brief Get mainprofile'id of given host name
+## @deprecated use wpkg_getMainProfileIdFromHostId() with a host id instead.
 ## @param	(string)	host name (as declared in wpkg's hosts.xml)
 ## @return	(int)		mainprofile's ID
 wpkg_getMainProfileIdFromHost() {
 	local HOST_NAME=$1
 	[ ! "${HOST_NAME}" ] && return $(false)
+	ewarn "${FUNCNAME}() is deprecated, use wpkg_getMainProfileIdFromHostId() with a host id instead."
+	ewarn "${FUNCNAME}() will be removed in future release of wpkg module"
 	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT mainprofile_id FROM hosts WHERE name='${HOST_NAME}'")
 	echo ${PROFILE_ID}
 }
