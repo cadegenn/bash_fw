@@ -10,7 +10,7 @@
 
 ## @var MYSQLDUMP_OPTIONS
 ## @brief MYSQL specific options
-MYSQLDUMP_OPTIONS="--skip-add-drop-table --create-options --no-create-info --extended-insert=FALSE ${DATABASE}"
+declare MYSQLDUMP_OPTIONS="--skip-add-drop-table --create-options --no-create-info --extended-insert=FALSE ${DATABASE}"
 
 #
 # ENUM
