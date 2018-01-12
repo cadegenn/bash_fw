@@ -153,7 +153,7 @@ wpkg_exportHostAdditionalProfiles() {
 	local ADDITIONAL_PROFILES_ID=$(${WPKG_QUERY_TABLE} "SELECT profile_id FROM hosts_profiles WHERE host_id = ${HOST_ID}")
 	for id in ${ADDITIONAL_PROFILES_ID}; do
 		einfo "$(wpkg_getProfileNameFromId ${id}) (${id})"
-	done
+	done | sort
 }
 
 ## @fn wpkg_displayHostPackages()
@@ -163,6 +163,9 @@ wpkg_displayHostPackages() {
 	local HOST_ID=$1
 	[ ! "${HOST_ID}" ] && return $(false)
 
+	for id in $(wpkg_getAllPackagesFromHost ${HOST_ID}); do
+		einfo $(wpkg_getPackageNameFromId ${id})
+	done | sort
 }
 
 ## @fn wpkg_getAllPackagesFromHost()
@@ -173,13 +176,17 @@ wpkg_getAllPackagesFromHost() {
 	local HOST_ID=$1
 	[ ! "${HOST_ID}" ] && return $(false)
 
-	local MAIN_PROFILE=$(wpkg_getMainProfileIdFromHostId ${HOST_ID})
-	local ADDITIONAL_PROFILES_ID=$(wpkg_getAdditionalProfilesFromHostId ${HOST_ID} "true")
+	MAIN_PROFILE=$(wpkg_getMainProfileIdFromHostId ${HOST_ID} true)
+	edevel "MAIN_PROFILE = ${MAIN_PROFILE}"
+	ADDITIONAL_PROFILES=$(wpkg_getAdditionalProfilesFromHostId ${HOST_ID} true)
+	edevel "ADDITIONAL_PROFILES = ${ADDITIONAL_PROFILES}"
+	ALL_PROFILES=$(echo ${MAIN_PROFILE} ${ADDITIONAL_PROFILES} | tr -s ' ' '\n' | sort -n | uniq)
 	local LIST_PACKAGES_ID=
-	for id in ${MAIN_PROFILE} ${ADDITIONAL_PROFILES_ID}; do
+	for id in ${ALL_PROFILES}; do
 		LIST_PACKAGES_ID="${LIST_PACKAGES_ID} $(wpkg_getPackageIdInProfileId ${id})"
 	done
-	echo ${LIST_PACKAGES_ID}
+	edevel "LIST_PACKAGES_ID = ${LIST_PACKAGES_ID}"
+	echo ${LIST_PACKAGES_ID} | tr -s ' ' '\n' | sort -n | uniq
 }
 
 ## @fn wpkg_deleteHostAdditionalProfileId()
