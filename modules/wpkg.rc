@@ -15,7 +15,7 @@ declare MYSQLDUMP_OPTIONS="--skip-add-drop-table --create-options --no-create-in
 #
 # ENUM
 #
-# type of command used in table package_actions (old bash, no assoc arrays)
+## @brief type of command used in table package_actions (old bash, no assoc arrays)
 declare -r COMMAND_TYPE_INSTALL=0
 declare -r COMMAND_TYPE_UPGRADE=1
 declare -r COMMAND_TYPE_DOWNGRADE=2
@@ -25,8 +25,8 @@ declare -r COMMAND_TYPE_REMOVE=3
 # GENERIC
 #
 ## @fn path_getUnixPathFromDosPath()
-# convert a DOS path to a Unix path
-# path may contain variable of the form %VARIABLE% and will worrectly wonverted to ${VARIABLE}
+## @brief convert a DOS path to a Unix path
+## @brief path may contain variable of the form %VARIABLE% and will worrectly wonverted to ${VARIABLE}
 ## @param	(string)	DOS style path
 ## @return	(string)	UNIX style path
 path_getUnixPathFromDosPath() {
@@ -37,7 +37,7 @@ path_getUnixPathFromDosPath() {
 }
 
 ## @fn path_checkUnixPathExist()
-# check if a given UNIX path exist on filesystem
+## @brief check if a given UNIX path exist on filesystem
 ## @param	(string)	absolute path
 ## @return	(bool)		true if exist | false otherwise
 path_checkUnixPathExist() {
@@ -75,7 +75,7 @@ wpkg_getHostIdFromName() {
 }
 
 ## @fn wpkg_getHostNameFromId()
-# Get Host name given host ID
+## @brief Get Host name given host ID
 ## @param	(int)		host id
 ## @return	(string)	host name (as declared in wpkg's hosts.xml)
 wpkg_getHostNameFromId() {
@@ -85,8 +85,8 @@ wpkg_getHostNameFromId() {
 	echo ${HOST_NAME}
 }
 
-# @fn wpkg_getHostsUseProfileId()
-# Return a list of hosts that use given profile
+## @fn wpkg_getHostsUseProfileId()
+## @brief Return a list of hosts that use given profile
 ## @param	(int)		profile ID
 ## @param	(bool)		true to recurse through profile hierarchy
 ## @return	(array)		list of hosts that use profile
@@ -121,7 +121,7 @@ wpkg_getHostStatus() {
 }
 
 ## @fn wpkg_exportHostDetailsFromName()
-# Export details of a HOST
+## @brief Export details of a HOST
 ## @param	(int)	host id
 wpkg_exportHostDetailsFromName() {
 	local HOST_NAME=$1
@@ -142,7 +142,7 @@ wpkg_exportHostDetailsFromName() {
 }
 
 ## @fn wpkg_exportHostAdditionalProfiles()
-# Export host's additional profiles
+## @brief Export host's additional profiles
 ## @param	(int)	host 
 wpkg_exportHostAdditionalProfiles() {
 	local HOST_NAME=$1
@@ -173,7 +173,7 @@ wpkg_displayHostPackages() {
 }
 
 ## @fn wpkg_deleteHostAdditionalProfileId()
-# Delete host's additional profiles
+## @brief Delete host's additional profiles
 ## @param	(int)	host id
 ## @param	(int)	profile id
 wpkg_deleteHostAdditionalProfileId() {
@@ -191,7 +191,7 @@ wpkg_deleteHostAdditionalProfileId() {
 }
 
 ## @fn wpkg_getMainProfileIdFromHost()
-# Get mainprofile'id of given host name
+## @brief Get mainprofile'id of given host name
 ## @param	(string)	host name (as declared in wpkg's hosts.xml)
 ## @return	(int)		mainprofile's ID
 wpkg_getMainProfileIdFromHost() {
@@ -202,7 +202,7 @@ wpkg_getMainProfileIdFromHost() {
 }
 
 ## @fn wpkg_getMainProfileIdFromHostId()
-# Get mainprofile'id of given host id
+## @brief Get mainprofile'id of given host id
 ## @param	(int)	host id
 ## @return	(int)		mainprofile's ID
 wpkg_getMainProfileIdFromHostId() {
@@ -251,7 +251,7 @@ wpkg_disableHost() {
 }
 
 ## @fn wpkg_setHostKeyValue()
-# Set key/value pair into host definition
+## @brief Set key/value pair into host definition
 ## @param	(int)		host if
 ## @param	(string)	key name
 ## @param	(string)	value
@@ -271,7 +271,7 @@ wpkg_setHostKeyValue() {
 }
 
 ## @fn wpkg_setHostMainProfileId()
-# Set mainprofile for host
+## @brief Set mainprofile for host
 ## @param	(string)	host name
 ## @param	(int)		id of profile
 ## @return	(int)		return code of eexec
@@ -289,7 +289,7 @@ wpkg_setHostMainProfileId() {
 }
 
 ## @fn wpkg_saveHost()
-# Save datas about a particular host
+## @brief Save datas about a particular host
 ## @param    (int)       host's id
 ## @param    (string)    path to backup file. file will be named with host's name and date
 ## @return   (bool)      true on success | false otherwise
@@ -314,7 +314,7 @@ wpkg_saveHost() {
 # PROFILES
 #
 ## @fn wpkg_getProfileIdUsePackageId()
-# Return a list of profiles that use given package
+## @brief Return a list of profiles that use given package
 ## @param	(int)		package ID
 ## @return	(array)		list of profiles that contain package
 wpkg_getProfileIdUsePackageId() {
@@ -326,7 +326,7 @@ wpkg_getProfileIdUsePackageId() {
 }
 
 ## @fn wpkg_profileGetParentProfiles()
-# Get parent profiles of given profile
+## @brief Get parent profiles of given profile
 ## @param	(int)		profile ID
 ## @param	$recurse
 ## @return	(array)		parent profile's ID
@@ -344,7 +344,7 @@ wpkg_profileGetParentProfiles() {
 }
 
 ## @fn wpkg_getProfileIdFromName()
-# Get a profile ID given a profile name
+## @brief Get a profile ID given a profile name
 ## @param	(string)	profile name
 ## @return	(int)		id
 wpkg_getProfileIdFromName() {
@@ -355,7 +355,7 @@ wpkg_getProfileIdFromName() {
 }
 
 ## @fn wpkg_getProfileNameFromId()
-# Get a profile name given its ID
+## @brief Get a profile name given its ID
 ## @param	(int)		profile ID
 ## @return	(string)	profile name
 wpkg_getProfileNameFromId() {
@@ -366,7 +366,7 @@ wpkg_getProfileNameFromId() {
 }
 
 ## @fn wpkg_profileIdIsHostMainProfileId()
-# Test if profile id is the host's main profile
+## @brief Test if profile id is the host's main profile
 ## @param	(int)	profile_id
 ## @param	(int)	host id
 ## @return	(bool)	true if profile_id is host's main profile
@@ -382,7 +382,7 @@ wpkg_profileIdIsHostMainProfileId() {
 }
 
 ## @fn wpkg_addProfileToHostId()
-# Add additional profile to host
+## @brief Add additional profile to host
 ## @param	(int)		host id
 ## @param	(int)		id of profile
 ## @return	(bool)		true on success | false otherwise
@@ -398,7 +398,7 @@ wpkg_addProfileToHostId() {
 }
 
 ## @fn wpkg_checkHostIdUseAdditionalProfileId()
-# Check if HOST use addition PROFILE
+## @brief Check if HOST use addition PROFILE
 ## @param	(int)	host's id
 ## @param	(int)	profile's id
 ## @return	(bool)	true if host use profile | false otherwise
@@ -414,7 +414,7 @@ wpkg_checkHostIdUseAdditionalProfileId() {
 }
 
 ## @fn wpkg_exportProfileDetailsFromName()
-# Export details of a PROFILE
+## @brief Export details of a PROFILE
 ## @param	(int)	host id
 wpkg_exportProfileDetailsFromName() {
 	local PROFILE_NAME=$1
@@ -438,14 +438,14 @@ wpkg_exportProfileDetailsFromName() {
 # PACKAGES
 #
 ## @fn wpkg_getAllPackagesId()
-# List all packages from database
+## @brief List all packages from database
 ## @return	(array)		list of package'ids
 wpkg_getAllPackagesId() {
 	${WPKG_QUERY_TABLE} "SELECT id FROM packages"
 }
 
 ## @fn wpkg_getAllPackagesIdWithPattern()
-# List all packages from database matching given pattern
+## @brief List all packages from database matching given pattern
 ## @param	(string)	pattern to search for
 ## @return	(array)		list of package'ids
 wpkg_getAllPackagesIdWithPattern() {
@@ -454,7 +454,7 @@ wpkg_getAllPackagesIdWithPattern() {
 }
 
 ## @fn wpkg_getPackageIdFromName()
-# Get a package ID given a package name
+## @brief Get a package ID given a package name
 ## @param	(string)	package name
 ## @return	(int)		id
 wpkg_getPackageIdFromName() {
@@ -465,7 +465,7 @@ wpkg_getPackageIdFromName() {
 }
 
 ## @fn wpkg_getPackageNameFromId()
-# Get a package name given a package Id
+## @brief Get a package name given a package Id
 ## @param	(int)		id
 ## @return	(string)	package name
 wpkg_getPackageNameFromId() {
@@ -476,7 +476,7 @@ wpkg_getPackageNameFromId() {
 }
 
 ## @fn wpkg_getPackageIdTextFromId()
-# Get a package id-text given a package Id
+## @brief Get a package id-text given a package Id
 ## @param	(int)		id
 ## @return	(string)	package name
 wpkg_getPackageIdTextFromId() {
@@ -487,7 +487,7 @@ wpkg_getPackageIdTextFromId() {
 }
 
 ## @fn wpkg_getPackageIdInProfileId()
-# Return list of package into profile id
+## @brief Return list of package into profile id
 ## @param	(int)	profile id
 ## @return	(array)	list of package id
 wpkg_getPackageIdInProfileId() {
@@ -500,7 +500,7 @@ wpkg_getPackageIdInProfileId() {
 }
 
 ## @fn wpkg_scriptUsedByPackage()
-# Check if given install.cmd is used by any package
+## @brief Check if given install.cmd is used by any package
 ## @param	(string)	full\path\to\install.cmd (windows style)
 ## @return	(array)		list of package(s) that use this script
 wpkg_scriptUsedByPackage() {
@@ -513,7 +513,7 @@ wpkg_scriptUsedByPackage() {
 }
 
 ## @fn wpkg_getCommandsFromPackage()
-# Get list of command of given type
+## @brief Get list of command of given type
 ## @param	(int)		package ID
 ## @param	(string)	type of command (install/upgrade/downgrade/remove)
 ## @return	(array)		list of commands
@@ -531,7 +531,7 @@ wpkg_getCommandsFromPackage() {
 }
 
 ## @fn wpkg_savePackage()
-# Save datas about a particular package
+## @brief Save datas about a particular package
 ## @param	(int)		package's id
 ## @param	(string)	path to backup file. file will be named with package's id-text and date
 ## @return	(bool)		true on success | false otherwise
@@ -557,7 +557,7 @@ wpkg_savePackage() {
 }
 
 ## @fn wpkg_removePackage()
-# Remove entirely a package from database
+## @brief Remove entirely a package from database
 ## @param	(int)		package's id
 ## @return	(bool)		true on success | false otherwise
 wpkg_removePackage() {
@@ -592,7 +592,7 @@ wpkg_removePackage() {
 }
 
 ## @fn wpkg_exportPackageDetailsFromName()
-# Export details of a PACKAGE
+## @brief Export details of a PACKAGE
 ## @param	(int)	host id
 wpkg_exportPackageDetailsFromName() {
 	local PACKAGE_NAME=$1
