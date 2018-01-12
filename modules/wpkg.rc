@@ -216,13 +216,23 @@ wpkg_getMainProfileIdFromHost() {
 
 ## @fn wpkg_getMainProfileIdFromHostId()
 ## @brief Get mainprofile'id of given host id
-## @param	(int)	host id
-## @return	(int)		mainprofile's ID
+## @param	$id			host id
+## @param	$recurse	true: recursiveley search for dependency profiles, false: do not search down dependency tree
+## @retval	(array)		($recurse == true) list of profiles's id from mainprofile's id to root
+## @retval	(int)		($recurse == false) mainprofile's ID
 wpkg_getMainProfileIdFromHostId() {
 	local HOST_ID=$1
+	local RECURSE="${2}"
 	[ ! "${HOST_ID}" ] && return $(false)
+
 	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT mainprofile_id FROM hosts WHERE id='${HOST_ID}'")
-	echo ${PROFILE_ID}
+	if [ "${RECURSE}" ]; then
+		local DEPENDENCY_ID=
+		for p in ${PROFILE_ID}; do
+			DEPENDENCY_ID="${DEPENDENCY_ID} $(wpkg_profileGetParentProfiles ${p} ${RECURSE})"
+		done
+	fi
+	echo "${PROFILE_ID} ${DEPENDENCY_ID}"
 }
 
 ## @fn wpkg_getAdditionalProfilesFromHostId()
@@ -235,10 +245,12 @@ wpkg_getAdditionalProfilesFromHostId() {
 	local RECURSE="${2}"
 	[ ! "${HOST_ID}" ] && return $(false)
 	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT profile_id FROM hosts_profiles WHERE host_id='${HOST_ID}'")
-	local DEPENDENCY_ID=
-	for p in ${PROFILE_ID}; do
-		DEPENDENCY_ID="${DEPENDENCY_ID} $(wpkg_profileGetParentProfiles ${p} ${RECURSE})"
-	done
+	if [ "${RECURSE}" ]; then
+		local DEPENDENCY_ID=
+		for p in ${PROFILE_ID}; do
+			DEPENDENCY_ID="${DEPENDENCY_ID} $(wpkg_profileGetParentProfiles ${p} ${RECURSE})"
+		done
+	fi
 	echo "${PROFILE_ID} ${DEPENDENCY_ID}"
 }
 
