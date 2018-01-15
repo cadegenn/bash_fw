@@ -92,12 +92,8 @@ wpkg_getHostNameFromId() {
 ## @return	(array)		list of hosts that use profile
 wpkg_getHostsUseProfileId() {
 	local PROFILE_ID=$1
-	local RECURSE=${2:-$(true)}
 	[ ! "${PROFILE_ID}" ] && return $(false)
 	local HOSTS=
-	for p_id in $(wpkg_profileGetParentProfiles ${PROFILE_ID}); do
-		HOSTS=$(wpkg_getHostsUseProfileId ${p_id})
-	done
 	# check host use main profile
 	local HOSTS2=$(${WPKG_QUERY_TABLE} "SELECT h.id FROM hosts AS h WHERE h.mainprofile_id = ${PROFILE_ID}")
 	# check host use additional profile
