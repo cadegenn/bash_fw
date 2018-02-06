@@ -57,7 +57,7 @@ eend() {
 	else
         COLUMNS=80
     fi
-	esetx $((COLUMNS - ${#rc_done} - 16))
+	esetx $((COLUMNS - 32))
 	case ${rc} in
 		${RC_DONE})		echo -ne "${rc_done}"
 						;;
