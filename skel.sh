@@ -91,9 +91,8 @@ declare -a ARGV
 ## @brief Print usage informations (help screen)
 usage() {
 	cat <<- EOF
-		DESCRIPTION: ${BASENAME} do some things
-		USAGE: ${BASENAME} [-d] [-dev] [-h] [-y]
-		 	-h		help screen (this screen)
+		COMMON PARAMETERS: ${BASENAME} [-u -q -v -d -dev -ask -y -s -nc -theme theme]
+		 	-u		common usage screen (this screen)
 		 	-q		quiet: do not print anything to the console
 		 	-v		verbose mode: print more messages
 		 	-d		debug mode: print VARIABLE=value pairs
@@ -106,8 +105,8 @@ usage() {
 		 			-nc is a shortcut for -theme nocolor
 		 	-theme 	use specified theme as color scheme.
 		 			use '-theme list' to list available themes.
+
 	EOF
-	exit
 }
 
 # Clean som stuff on exit
@@ -135,7 +134,7 @@ while [ $# -gt 0 ]; do
 				DEBUG=true
 				VERBOSE=true
 				;;
-		-h)		usage
+		-u)		usage
 				;;
 		-y)		YES=true
 				;;
@@ -174,9 +173,28 @@ main() {
 
 	eenter "${FUNCNAME}()"
 
+	help() {
+		cat <<- EOF
+			DESCRIPTION: ${BASENAME} do some stuff
+			USAGE: ${BASENAME} [-h -H]
+			 	-h	show help (this screen)
+			 	-H	show help (this screen) with common parameters usage
+
+		EOF
+	}
+
 	# parsing user-defined command line arguments
 	while [ $# -gt 0 ]; do
 	    case $1 in
+			-h)
+				help
+				exit
+				;;
+			-H)
+				help
+				usage
+				exit
+				;;
 			*)	edevel "ARGV[1] = ${1}"
 				;;
 		esac
