@@ -42,6 +42,16 @@ else
 	DIRNAME=$(cd `dirname "$0"`; pwd)
 fi
 
+## @var BASHFW_PATH
+## @brief path to installed bash framework
+declare BASHFW_PATH=
+
+# try to find BASHFW_PATH in reversed-precedence order
+# 99. ${DIRNAME} (default value)
+BASHFW_PATH="${DIRNAME}"
+# 1. /etc/profile.d/bashfw.sh
+[ -e /etc/profile.d/bashfw.sh ] && . /etc/profile.d/bashfw.sh
+
 ## @var QUIET
 ## @brief instruct script to print nothing
 ## @note	QUIET supersedes all other log level informations like VERBOSE, DEBUG and DEVEL
@@ -138,7 +148,7 @@ while [ $# -gt 0 ]; do
 		-theme)	shift
 				case "${1}" in
 					list)
-							find ${DIRNAME}/lib/ -name "theme_*.rc" -printf "%f\n" | cut -d '_' -f2 | cut -d '.' -f1 | tr -s '\n' ' '
+							find ${BASHFW_PATH}/lib/ -name "theme_*.rc" -printf "%f\n" | cut -d '_' -f2 | cut -d '.' -f1 | tr -s '\n' ' '
 							echo # if this echo is not present, the above line do not display anything
 							;;
 					*)		BASHFW_THEME="${1}"
@@ -153,8 +163,8 @@ while [ $# -gt 0 ]; do
 done
 
 # load API
-source "${DIRNAME}/lib/api.rc" || {
-	echo "${DIRNAME}/lib/api.rc not found... Aborting."
+source "${BASHFW_PATH}/lib/api.rc" || {
+	echo "${BASHFW_PATH}/lib/api.rc not found... Aborting."
 	exit 1
 }
 
