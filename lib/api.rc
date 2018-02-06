@@ -81,6 +81,7 @@ fi
 ## @brief current standard output
 ## @note can be '/dev/stdout', '\${TTY}', or a filename
 ## Every e*() functions write to this device
+## @deprecated	since 2017.09
 declare STDOUT=/dev/stdout
 
 # set tabs to 4 spaces to gain space on screen
