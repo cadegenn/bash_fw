@@ -233,9 +233,10 @@ jsonObjectToArray() {
 	local name="${1}"
 	local json="${2}"
 
-	aObject=$(echo "${json}" | jq -r 'to_entries|map("[\"\(.key)\"]='"'\(.value|tostring)'"'")|.[]')
-	edevel "aObject = ${aObject}"
-	echo -n "${aObject}"
+    aObject=$(echo "${json}" | jq -r 'to_entries|map("[\"\(.key)\"]='"'\(.value|tostring)'"'")|.[]')
+    edevel "aObject = ${aObject}"
+    # remove single-quote into double-quoted values to avoid syntax error later on
+    echo -n "${aObject}" | sed -e 's/"\([[:alnum:][:space:]]*\)'\''\([[:alnum:][:space:]]*\)"/"\1\2"/g'
 
 	eleave "${FUNCNAME}()"
 }
