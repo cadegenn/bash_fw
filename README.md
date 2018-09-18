@@ -1,10 +1,12 @@
-[![build Ubuntu (travis)](https://travis-ci.org/cadegenn/pwsh_fw.svg?branch=develop)](https://travis-ci.org/cadegenn/pwsh_fw)
+[![latest release](https://img.shields.io/github/release/cadegenn/bash_fw.svg)](../../releases/latest)
+[![license](https://img.shields.io/github/license/cadegenn/bash_fw.svg)](LICENSE)
+[![build Ubuntu (travis)](https://travis-ci.org/cadegenn/bash_fw.svg?branch=develop)](https://travis-ci.org/cadegenn/bash_fw)
 
 <img align="left" width="64" height="64" src="images/logo_256.png">
 
-# bash_fw
+# Tiny bash Framework
 
-Simple bash framework to ease writing and debugging scripts.
+(very) Simple bash framework to ease writing and debugging scripts.
 
 ## How to use
 
