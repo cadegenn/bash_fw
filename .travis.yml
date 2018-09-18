@@ -29,7 +29,7 @@ before_script:
 script:
   - echo "Pass 04 script"
   # - pwsh -f "${env:TRAVIS_BUILD_DIR}/test.ps1"
-  - ${TRAVIS_BUILD_DIR}/build/build-dev.sh -dev -api "${TRAVIS_BUILD_DIR}"
+  - ${TRAVIS_BUILD_DIR}/build/build-deb.sh -dev -api "${TRAVIS_BUILD_DIR}"
 
 before_cache:
   - echo "Pass 05 before_cache"
