@@ -151,12 +151,14 @@
     b end
 }
 
-# process include files for caller graph
-#/^source /{
-#	s/source /\#include /
-#	p
-#	b end
-#}
+
+# Replace all 'source ' by '#include ' at beginning-of-line for generation of directory graphs.
+/^source /{
+    s/^source/\#include/
+	s/\${.*}/./
+    p
+#    b end
+}
 
 # Delete non doxygen-related lines content, but not the line
 # themselves.
