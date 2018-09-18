@@ -4,14 +4,15 @@ Simple bash framework to ease writing and debugging scripts
 
 ## How to use
 
-  * Download latest release into your scripts repository.
-  * Use the `skel.sh` as a template for your own scripts :
+* Download latest release into your scripts repository.
+* Use the `skel.sh` as a template for your own scripts :
 
 ```console
 cp -a skel.sh myscript.sh
 ```
 
 Start scripting between the lines
+
 ```shell
 #################################################
 ##
@@ -41,6 +42,7 @@ eexec cp -a afile.txt /to/another/place/
 ### Boolean variables
 
 To set a variable to `true`, simply assign a value to it. For example, all these statement are equivalent and will be trated as `true` :
+
 ```shell
 var1="true"
 var1="false"
@@ -49,6 +51,7 @@ var1=0
 ```
 
 To set a variable to `false`, simply unassign the variable like this
+
 ```shell
 var1=
 ```
@@ -58,8 +61,10 @@ TODO: write a `isBool()` function to abstract this. This way we could handle tha
 ## Get the complete documentation
 
 You can generate the doc with Doxygen. Simply do the following
-  * install doxygen for your distribution
-  * execute this
+
+* install doxygen for your distribution
+* execute this
+
 ```shell
 cd doc
 doxygen Doxyfile
