@@ -105,6 +105,7 @@ usage() {
 		 			-nc is a shortcut for -theme nocolor
 		 	-theme 	use specified theme as color scheme.
 		 			use '-theme list' to list available themes.
+		 	-api	use bash_fw from alternate directory (for developers only).
 
 	EOF
 }
@@ -156,6 +157,9 @@ while [ $# -gt 0 ]; do
 					*)		BASHFW_THEME="${1}"
 							;;
 				esac
+				;;
+		-api)	shift
+				BASHFW_PATH=${1}
 				;;
 		*)		# store user-defined command line-arguments
 				ARGV=("${ARGV[@]}" "${1}")
