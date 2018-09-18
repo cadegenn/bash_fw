@@ -124,6 +124,9 @@ while [ $# -gt 0 ]; do
 		-q)		QUIET=true
 				ASK=
 				YES=true
+				VERBOSE=
+				DEBUG=
+				DEVEL=
 				;;
 		-v)		VERBOSE=true
 				;;
