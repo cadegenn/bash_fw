@@ -1,6 +1,10 @@
+[![build Ubuntu (travis)](https://travis-ci.org/cadegenn/pwsh_fw.svg?branch=develop)](https://travis-ci.org/cadegenn/pwsh_fw)
+
+<img align="left" width="64" height="64" src="images/logo_256.png">
+
 # bash_fw
 
-Simple bash framework to ease writing and debugging scripts
+Simple bash framework to ease writing and debugging scripts.
 
 ## How to use
 
@@ -56,7 +60,7 @@ To set a variable to `false`, simply unassign the variable like this
 var1=
 ```
 
-TODO: write a `isBool()` function to abstract this. This way we could handle that `var1="false"` is really process as `false`. We could also negate special words like "no", "disabled", or even 0.
+TODO: write a `isBool()` function to abstract this. This way we could handle that `var1="false"` is really processed as `false`. We could also negate special words like "no", "disabled", or even 0.
 
 ## Get the complete documentation
 
