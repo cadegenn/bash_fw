@@ -41,7 +41,7 @@ edebug() {
 edevel() {
 	[ "${QUIET}" ] && return
 	if [ ${DEVEL} ]; then
-		echo -ne "\n${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}"
+		echo -ne "\n${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}" >> ${TTY}
 	fi
 }
 
@@ -88,7 +88,7 @@ eenter() {
 	[ "${QUIET}" ] && return
 	local message=${@}
 	if [ ${DEVEL} ]; then
-		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}"
+		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}" >> ${TTY}
 	fi
 }
 
@@ -126,7 +126,7 @@ eleave() {
 	[ "${QUIET}" ] && return
 	local message=${@}
 	if [ ${DEVEL} ]; then
-		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}"
+		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}" >> ${TTY}
 	fi
 }
 
