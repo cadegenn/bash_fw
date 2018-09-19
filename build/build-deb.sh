@@ -217,12 +217,12 @@ main() {
 	# eexec mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw/{doc,images,lib,modules}"
 	# eexec cp -a "${DIRNAME}/doc/html"
 	eexec mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw"
-	eexec cp -a "${DIRNAME}/lib" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
-	eexec cp -a "${DIRNAME}/modules" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
-	eexec cp -a "${DIRNAME}/*.sh" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
+	eexec cp -a "${DIRNAME}/../lib" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
+	eexec cp -a "${DIRNAME}/../modules" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
+	eexec cp -a "${DIRNAME}/../*.sh" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
+	eexec cp -a "${DIRNAME}/../LICENSE" "${DIRNAME}/debian"
 
-	eexec "${DIRNAME}/LICENSE" "${DIRNAME}/debian"
-	eexec sed -i -e '/__VERSION__/'${VERSION}'/g' "${DIRNAME}/debian/DEBIAN/control"
+	eexec "sed -i -e '/__VERSION__/${VERSION}/g' \"${DIRNAME}/debian/DEBIAN/control\""
 	eexec chmod 755 "${DIRNAME}/debian/DEBIAN/postinst"
 	eexec fakeroot dpkg -b "${DIRNAME}/debian" cmd_fw-${VERSION}-name.deb
 
