@@ -216,7 +216,7 @@ main() {
 
 	# eexec mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw/{doc,images,lib,modules}"
 	# eexec cp -a "${DIRNAME}/doc/html"
-	eexec mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw"
+	mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw"
 	eexec cp -a "${DIRNAME}/../lib" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
 	eexec cp -a "${DIRNAME}/../modules" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
 	eexec cp -a "${DIRNAME}/../*.sh" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
