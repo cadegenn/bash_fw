@@ -5,7 +5,4 @@ Section: utils
 Maintainer: Charles-Antoine Degennes <cadegenn@gmail.com>
 Architecture: all
 Version: __VERSION__
-# Pre-Depends: libc6 (>= 2.0.105)
-# Provides: rgrep
-# Conflicts: rgrep
 Description: (very) Simple bash framework to ease writing and debugging scripts.
