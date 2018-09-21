@@ -219,6 +219,10 @@ egetx() {
 ## @param $x new position to set cursor to
 ## @see @url http://ascii-table.com/ansi-escape-sequences.php
 esetx() {
+	# test for travis build
+	echo " "
+	return
+
 	local new_x=${1}
 	local cur_x=$(egetx)
 
