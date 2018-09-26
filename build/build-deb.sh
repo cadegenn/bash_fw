@@ -232,7 +232,7 @@ main() {
 
 	eexec "sed -i -e 's/__VERSION__/${BASHFW_VERSION}.${TRAVIS_BUILD_NUMBER}/g' \"${DIRNAME}/debian/DEBIAN/control\""
 	eexec chmod 755 "${DIRNAME}/debian/DEBIAN/postinst"
-	eexec fakeroot dpkg -b "${DIRNAME}/debian" bash_fw-${VERSION}-all.deb
+	eexec fakeroot dpkg -b "${DIRNAME}/debian" bash_fw-${BASHFW_VERSION}.${TRAVIS_BUILD_NUMBER}-all.deb
 
 	##################################################
 	##
