@@ -216,12 +216,6 @@ main() {
 	##
 	##################################################
 
-	# some travis tests
-	echo "which tput"
-	which tput
-	echo "tput cols"
-	tput cols
-	
 	# eexec mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw/{doc,images,lib,modules}"
 	# eexec cp -a "${DIRNAME}/doc/html"
 	mkdir -p "${DIRNAME}/debian/DEBIAN/opt/bashfw"
