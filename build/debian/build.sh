@@ -218,6 +218,8 @@ main() {
 
 	ROOT=$(cd "${DIRNAME}/../.."; pwd)
 	RELEASE_DIR="${ROOT}/releases/debian"
+	BUILD_DIR=/tmp/${BASENAME}.$$
+	SKEL_DIR="${DIRNAME}/skel"
 	VERSION=$(cat "${ROOT}/VERSION")
 	BUILD=$(cat "${DIRNAME}/BUILD")
 	BUILD=$((BUILD + 1))
@@ -225,28 +227,29 @@ main() {
 
 	edevel "ROOT = ${ROOT}"
 	edevel "RELEASE_DIR = ${RELEASE_DIR}"
+	edevel "BUILD_DIR = ${BUILD_DIR}"
+	edevel "SKEL_DIR = ${SKEL_DIR}"
 	edevel "VERSION = ${VERSION}"
 	edevel "BUILD = ${BUILD}"
 
-	eexec mkdir -p "${DIRNAME}/debian/DEBIAN"
-	eexec mkdir -p "${DIRNAME}/debian/etc/profile.d"
-	eexec rm -Rf "${DIRNAME}/debian/opt/${PRODUCT_SHORTNAME}"
-	eexec mkdir -p "${DIRNAME}/debian/opt/${PRODUCT_SHORTNAME}"
+	eexec mkdir -p "${BUILD_DIR}"
+	eexec rsync -a "${SKEL_DIR}/" "${BUILD_DIR}/"
+	eexec mkdir -p "${BUILD_DIR}/opt/${PRODUCT_SHORTNAME}"
 
 	# copy files
 	for d in images lib modules; do
 		[ ! -d "${ROOT}/${d}/" ] && eerror "Folder '${ROOT}/${d}/' not found." && continue
-		eexec rsync -a ${RSYNC_OPIONS} "${ROOT}/${d}/" "${DIRNAME}/debian/opt/${PRODUCT_SHORTNAME}/${d}"
+		eexec rsync -a ${RSYNC_OPIONS} "${ROOT}/${d}/" "${BUILD_DIR}/opt/${PRODUCT_SHORTNAME}/${d}"
 	done
 	for f in "${ROOT}/"*.sh "${ROOT}/"*.md; do
 		[ ! -e "${f}" ] && eerror "File '${f}' not found." && continue
-		eexec cp -a "${f}" "${DIRNAME}/debian/${DEFAULT_INSTALL_DIR}/${PRODUCT_SHORTNAME}/"
+		eexec cp -a "${f}" "${BUILD_DIR}/opt/${PRODUCT_SHORTNAME}/"
 	done
 
 	# control file
 	# @url https://www.debian.org/doc/debian-policy/ch-controlfields.html
-	SIZE=$(($(du -sb "${DIRNAME}/debian" | cut -f1) / 1024))
-	cat <<-EOF > "${DIRNAME}/debian/DEBIAN/control"
+	SIZE=$(($(du -sb "${BUILD_DIR}" | cut -f1) / 1024))
+	cat <<-EOF > "${BUILD_DIR}/DEBIAN/control"
 		Package: ${PRODUCT_SHORTNAME}
 		Version: ${VERSION}.${BUILD}
 		Architecture: all
@@ -259,7 +262,7 @@ main() {
 
 	[ ! -d "${RELEASE_DIR}" ] && mkdir -p "${RELEASE_DIR}"
 	ebegin "building ${PRODUCT_SHORTNAME}-${VERSION}.${BUILD}-all.deb"
-	eexec fakeroot dpkg -b "${DIRNAME}/debian" "${RELEASE_DIR}/${PRODUCT_SHORTNAME}-${VERSION}.${BUILD}-all.deb"
+	eexec fakeroot dpkg -b "${BUILD_DIR}" "${RELEASE_DIR}/${PRODUCT_SHORTNAME}-${VERSION}.${BUILD}-all.deb"
 	eend $?
 	if [ -e "${RELEASE_DIR}/${PRODUCT_SHORTNAME}-${VERSION}.${BUILD}-all.deb" ]; then
 		einfo ""
