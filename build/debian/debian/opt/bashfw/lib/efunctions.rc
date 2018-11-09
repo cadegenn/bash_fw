@@ -1,0 +1,377 @@
+## @file efunctions.rc
+## @brief librarie for e*() functions that do not depend on OS
+## @author Charles-Antoine Degennes <cadegenn@gmail.com>
+## @copyright	(c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
+
+## @fn ebegin()
+## @brief display begin message
+## @param $message  the message to display
+ebegin() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_BEGIN_COLOR} *${COLOR_NORMAL} ${message} "
+}
+
+## @fn ebreak()
+## @brief print a break line
+ebreak() {
+	[ "${QUIET}" ] && return
+	if [ ${HAVE_TTY} -eq 0 ]; then
+		[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	else
+		COLUMNS=80
+	fi
+	echo
+	for i in $(seq ${COLUMNS}); do echo -n '-'; done
+}
+
+## @fn edebug()
+## @brief display debug message
+## @param $message  the message to display
+edebug() {
+	[ "${QUIET}" ] && return
+	if [ ${DEBUG} ]; then
+		echo -ne "\n${INDENT}${THEME_DEBUG_COLOR} * DBG: $@${COLOR_NORMAL}"
+	fi
+}
+
+## @fn edevel()
+## @brief display message to help development
+## @param $message  the message to display
+edevel() {
+	[ "${QUIET}" ] && return
+	if [ ${DEVEL} ]; then
+		echo -ne "\n${INDENT}${THEME_DEVEL_COLOR} * DEV: $@${COLOR_NORMAL}" >> ${TTY}
+	fi
+}
+
+## @fn eend()
+## @brief display end message
+## @param $rc  the status code to display
+## @see returncodes.rc
+eend() {
+	[ "${QUIET}" ] && return
+	local rc=${1}
+	if [ ${HAVE_TTY} -eq 0 ]; then
+		[ ! "${COLUMNS}" ] && COLUMNS=$(tput cols)
+	else
+        COLUMNS=80
+    fi
+	esetx $((COLUMNS - 10))
+	case ${rc} in
+		${RC_DONE})		echo -ne "${rc_done}"
+						;;
+		${RC_FAILED})   echo -ne "${rc_failed}"
+						;;
+		${RC_RUNNING})  echo -ne "${rc_running}"
+						;;
+		${RC_MISSED})   echo -ne "${rc_missed}"
+						;;
+		${RC_SKIPPED})  echo -ne "${rc_skipped}"
+						;;
+		${RC_UNUSED})   echo -ne "${rc_unused}"
+						;;
+		${RC_UNKNOWN})  echo -ne "${rc_unknown}"
+						;;
+		${RC_DEAD})		echo -ne "${rc_dead}"
+						;;
+		*)				echo -ne "${rc_unknown}"
+						;;
+	esac
+
+}
+
+## @fn eenter()
+## @brief display message when entering something (a function for example or a loop)
+## @param $message  the message to display
+eenter() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	if [ ${DEVEL} ]; then
+		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} >> ${message} ${COLOR_NORMAL}" >> ${TTY}
+	fi
+}
+
+## @fn eerror()
+## @brief display error message
+## @param $message  the error message to display
+eerror() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}"
+}
+
+## @fn efatal()
+## @brief display error message and exit
+## @param $message  the error message to display
+efatal() {
+	[ "${QUIET}" ] && exit 1
+	eerror "$@\n"
+	
+	# if we are in a script, exit it and return to the shell
+	# if we are in a sourced file, return to the main script
+	[ "$0" == "bash" ] && return 2 || exit 1
+}
+
+## @fn einfo()
+## @brief display info message
+## @param $message  the message to display
+einfo() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_INFO_COLOR} *${COLOR_NORMAL} ${message}"
+}
+
+## @fn eleave()
+## @brief display message when leaving something (a function for example or a loop)
+## @param $message  the message to display
+eleave() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	if [ ${DEVEL} ]; then
+		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}" >> ${TTY}
+	fi
+}
+
+## @fn esubtitle()
+## @brief display begin message
+## @param $message  the message to display
+esubtitle() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_TITLE_COLOR} * ${THEME_SUBTITLE_COLOR}${message}${COLOR_NORMAL}"
+}
+
+## @fn etitle()
+## @brief display a title
+## @param $message  the title to display
+etitle() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	echo
+	echo -e -n "\n${THEME_TITLE_COLOR} "
+	for i in $(seq $((${#message}+6))); do echo -n '*'; done
+	echo -e -n "\n ** ${message} ** ${COLOR_NORMAL}"
+}
+
+## @fn everbose()
+## @brief display verbose message
+## @param $message  the message to display
+everbose() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	if [ ${VERBOSE} ]; then
+		echo -ne "\n${INDENT}${THEME_VERBOSE_COLOR} * ${message} ${COLOR_NORMAL}"
+	fi
+}
+
+## @fn ewarn()
+## @brief display warning message
+## @param $message  the warning to display
+ewarn() {
+	[ "${QUIET}" ] && return
+	local message=${@}
+	echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}"
+}
+
+# ---------------------------------------------------------------------------------------
+
+## @var INDENT
+## @brief current indentation
+declare -g INDENT=
+
+## @fn eindent()
+## @brief add indentation
+eindent() {
+	INDENT="  ${INDENT}"
+}
+
+## @fn eoutdent()
+## @brief remove indentation
+eoutdent() {
+	INDENT=${INDENT/  /}
+}
+
+# ---------------------------------------------------------------------------------------
+
+## @fn egetx()
+## @brief get x position of current cursor
+## @return (integer) current x position of cursor in terminal
+## @see @url https://unix.stackexchange.com/questions/88296/get-vertical-cursor-position
+egetx() {
+	if [ ${HAVE_TTY} -eq 0 ]; then
+		exec < /dev/tty
+		oldstty=$(stty -g)
+		stty raw -echo min 0
+		## on my system, the following line can be replaced by the line below it
+		echo -en "\033[6n" > /dev/tty
+		## tput u7 > /dev/tty	# when TERM=xterm (and relatives)
+		IFS=';' read -r -d R -a pos
+		stty $oldstty
+		## change from one-based to zero based so they work with: tput cup $row $col
+		#row=$((${pos[0]:2} - 1))	# strip off the esc-[
+		col=$((${pos[1]} - 1))
+		#echo "(row,col): $row,$col"
+		echo ${col}
+	else
+		echo "40" # half standard 80 columns
+	fi
+}
+
+## @fn esetx()
+## @brief set x position of current cursor
+## @param $x new position to set cursor to
+## @see @url http://ascii-table.com/ansi-escape-sequences.php
+esetx() {
+	# # test for travis build
+	# echo " "
+	# return
+
+	local new_x=${1}
+	local cur_x=$(egetx)
+
+	[ ! ${new_x} -ge 0 ] && return
+	[ ! ${cur_x} -ge 0 ] && return
+
+	if [ ${new_x} -gt ${cur_x} ]; then
+		local step=$((new_x - cur_x))
+		#echo -e "\033[${step}C ${new_x}"
+		if [ ${HAVE_TTY} -eq 0 ]; then
+			tput cuf ${step}
+		else
+			for i in $(seq ${step}); do echo -n ' '; done
+		fi
+	else
+		local step=$((cur_x - new_x))
+		#echo -e "${new_x} \033[${step}D"
+		if [ ${HAVE_TTY} -eq 0 ]; then
+			tput cub ${step}
+		else
+			for i in $(seq ${step}); do echo -n ' '; done
+		fi
+	fi
+}
+
+# ---------------------------------------------------------------------------------------
+
+## @fn eexec()
+## @brief execute command
+## @param $cmd	full command line with parameters
+## @note	Using 'eval' is VERY important. Do not delete it.
+## @note	We cannot declare and assign variable all at once using
+##			local output=$(eval ${CMD})
+##			because in that case, return code is not returned with RC=$?
+##			I don't know why
+## @return (integer)	return code
+eexec() {
+	local CMD="$*"
+	local RC=0
+	local output=
+	#[ "${DEBUG}" ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.debug "DEBUG: ${CMD}"
+	if [ "${ASK}" ]; then
+		local ANSWER=$(equestion_yn "execute \"${CMD}\" ?" 'y')
+		[ ! "${ANSWER}" ] && return 0
+	fi
+	edebug "${CMD}"
+	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
+	if [ "${DEVEL}" ]; then
+		#local output=$(${CMD} 2>&1) # $? do NOT work
+		#output=$(${CMD} 2>&1) # $? DO work
+		#local output=$(${CMD}) # $? do NOT work
+		# local output=$(eval ${CMD}) # $? do NOT work
+		output=$(eval ${CMD}) # $? DO work
+		#${CMD} # $? DO work
+		#eval ${CMD} # $? DO work
+		RC=$?
+		[ "${QUIET}" ] && return ${RC}
+		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}"
+		echo -ne " (RC = ${RC}) "
+	elif [ "${DEBUG}" ]; then
+		#output=$(${CMD} 2>&1 > /dev/null)
+		#output=$(${CMD})
+		#${CMD}
+		output=$(eval ${CMD} 2>&1 > /dev/null)
+		RC=$?
+		[ "${QUIET}" ] && return ${RC}
+		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}"
+		#(eval ${CMD}) > /dev/null
+		echo -ne " (RC = ${RC}) "
+	else
+		eval ${CMD} > /dev/null 2>&1
+		RC=$?
+		[ "${QUIET}" ] && return ${RC}
+	fi
+	echo -ne ${COLOR_NORMAL}
+	#echo ${CMD}
+	#exec ${CMD}
+	#local RC=$?
+	#[ -f "${OUTPUT}" ] && [ ${VERBOSE} -gt 1 ] && ${LOGGER} ${LOGGER_OPTIONS} -p ${FACILITY}.info -f "${OUTPUT}" && rm -f "${OUTPUT}"
+	[ "${DEBUG}" ] && eend ${RC}
+	return ${RC}
+}
+
+# ---------------------------------------------------------------------------------------
+
+## @fn equestion()
+## @brief print a question
+## @param $message The question itself
+## @param $default Optional: the default answer. It will be displayed between angle brackets.
+## @param $is_passwd  Optional: if set to true, do not echo user input. Usefull for asking password
+## @return (string) response from the user
+equestion() {
+	local message="${1}"
+	local answer="${2}"
+	local passwd="${3}"
+
+	# -q or -quiet was specified on command line
+	[ "${QUIET}" ] && echo ${answer} && return
+
+    echo -ne "\n${INDENT}${THEME_QUESTION_COLOR} * QUE: ${message} ${COLOR_NORMAL}" >> ${TTY}
+	[ "${answer}" ] && echo -ne "[${THEME_QUESTION_DEFAULT_ANSWER_COLOR}${answer}${COLOR_NORMAL}] " >> ${TTY}
+
+	# -y or -yes was specified on command line
+    if [ "${YES}" ]; then
+		echo ${answer}
+		echo >> ${TTY}
+		return
+	fi
+
+	[ "${passwd}" ] && read -s REPONSE || read REPONSE
+	echo ${REPONSE:-${answer}}
+}
+
+## @fn equestion_yn()
+## @brief print a boolean question
+## @param $message The question itself
+## @param $default Optional: the default answer. It has to by 'y' or 'n'
+## @return (string) response from the user
+equestion_yn() {
+	local message="${1}"
+	local answer="${2}"
+	case ${answer} in
+		[yY]*|1|[tT][rR][uU][eE])
+				answer="y"
+				;;
+		*)		answer="n"
+				;;
+	esac
+	[ "${YES}" ] && answer="y"
+	local REPONSE=$(equestion "${message}" "${answer}")
+	case ${REPONSE,,} in
+		y|o|1|true)
+			echo "y"
+			;;
+		*)	echo
+			;;
+	esac
+}
+
+## @fn equestion_passwd()
+## @brief ask for a passwd
+## @param $message The question itself
+## @return (string) response from the user
+equestion_passwd() {
+	local message="${1}"
+	equestion "${message}" "" true
+}
+

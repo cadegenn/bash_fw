@@ -1,8 +1,0 @@
-Package: bashfw
-Essential: no
-Priority: optional
-Section: utils
-Maintainer: Charles-Antoine Degennes <cadegenn@gmail.com>
-Architecture: all
-Version: __VERSION__
-Description: (very) Simple bash framework to ease writing and debugging scripts.

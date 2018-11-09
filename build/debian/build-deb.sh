@@ -224,7 +224,7 @@ main() {
 	eexec cp -a "${DIRNAME}/../*.sh" "${DIRNAME}/debian/DEBIAN/opt/bashfw/"
 	eexec cp -a "${DIRNAME}/../LICENSE" "${DIRNAME}/debian"
 
-	eexec "sed -i -e 's/__VERSION__/${BASHFW_VERSION}.${TRAVIS_BUILD_NUMBER}/g' \"${DIRNAME}/debian/DEBIAN/control\""
+	eexec "sed -i -e 's/^Version:.*/Version: ${BASHFW_VERSION}.${TRAVIS_BUILD_NUMBER}/g' \"${DIRNAME}/debian/DEBIAN/control\""
 	eexec chmod 755 "${DIRNAME}/debian/DEBIAN/postinst"
 	eexec fakeroot dpkg -b "${DIRNAME}/debian" bash_fw-${BASHFW_VERSION}.${TRAVIS_BUILD_NUMBER}-all.deb
 
@@ -238,5 +238,9 @@ main() {
 }
 
 main "${ARGV[@]}"
-unset ARGV
+echo $?
+# unset ARGV
+echo $?
 echo
+echo $?
+exit 0

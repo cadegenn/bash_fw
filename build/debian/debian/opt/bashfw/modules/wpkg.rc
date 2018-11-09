@@ -1,0 +1,640 @@
+## @file wpkg.rc
+## @brief Resource file for wpkg
+## @author Charles-Antoine Degennes <cadegenn@univ-lr.fr>
+## @warning First, you have to get the Id of your object, given its `id-text` or its `name` using according function
+## @warning All other functions have to take an id as first argument
+## @warning You can retrive each object's id with
+## @warning * wpkg_getHostIdFromName "myHostName[0-9]"
+## @warning * wpkg_getProfileIdFromName "myProfile"
+## @warning * wpkg_getPackageIdFromName "id-text-of-package"
+
+## @var MYSQLDUMP_OPTIONS
+## @brief MYSQL specific options
+declare MYSQLDUMP_OPTIONS="--skip-add-drop-table --create-options --no-create-info --extended-insert=FALSE ${DATABASE}"
+
+#
+# ENUM
+#
+## @brief type of command used in table package_actions (old bash, no assoc arrays)
+declare -r COMMAND_TYPE_INSTALL=0
+declare -r COMMAND_TYPE_UPGRADE=1
+declare -r COMMAND_TYPE_DOWNGRADE=2
+declare -r COMMAND_TYPE_REMOVE=3
+
+#
+# GENERIC
+#
+## @fn path_getUnixPathFromDosPath()
+## @brief convert a DOS path to a Unix path
+## @brief path may contain variable of the form %VARIABLE% and will worrectly wonverted to ${VARIABLE}
+## @param	(string)	DOS style path
+## @return	(string)	UNIX style path
+path_getUnixPathFromDosPath() {
+	local MYPATH="${*//\\/\/}"
+	local NEWPATH=$(echo "${MYPATH}" | sed -e 's,\\,/,g' -e 's,//,/,g' -e 's/%\([[:alnum:]_-]*\)%/${\1}/g' -e 's/"//g')
+	#edebug "NEWPATH = ${NEWPATH}"
+	echo "${NEWPATH}"
+}
+
+## @fn path_checkUnixPathExist()
+## @brief check if a given UNIX path exist on filesystem
+## @param	(string)	absolute path
+## @return	(bool)		true if exist | false otherwise
+path_checkUnixPathExist() {
+	local MYPATH="${1}"
+	#edebug "MYPATH = ${MYPATH}"
+	# in case of MYPATH containing variables itself, eval-it to expand them
+	local MYPATH_EXPANDED="$(eval echo "${MYPATH}")"
+	#echo "MYPATH_EXPANDED = ${MYPATH_EXPANDED}"
+	#echo "MYPATH_EXPANDED = ${MYPATH_EXPANDED}" | file -i -
+	[ "${DEBUG}" ] && ebegin ">> ${MYPATH_EXPANDED}"
+	[ -e "${MYPATH_EXPANDED}" ]; local RC=$?
+	[ "${DEBUG}" ] && eend ${RC}
+	return ${RC}
+}
+
+#
+# HOSTS
+#
+## @fn wpkg_getAllHostName()
+## @brief Get a list of all hosts
+## @return	(array)		host list
+wpkg_getAllHostName() {
+	${WPKG_QUERY_TABLE} "SELECT name FROM hosts"
+}
+
+## @fn wpkg_getHostIdFromName()
+## @brief Get Host ID given host name
+## @param	(string)	host name (as declared in wpkg's hosts.xml)
+## @return	(int)		host id
+wpkg_getHostIdFromName() {
+	local HOST_NAME=$1
+	[ ! "${HOST_NAME}" ] && return $(false)
+	local HOST_ID=$(${WPKG_QUERY_TABLE} "SELECT id FROM hosts WHERE name='${HOST_NAME}'")
+	echo ${HOST_ID}
+}
+
+## @fn wpkg_getHostNameFromId()
+## @brief Get Host name given host ID
+## @param	(int)		host id
+## @return	(string)	host name (as declared in wpkg's hosts.xml)
+wpkg_getHostNameFromId() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+	local HOST_NAME=$(${WPKG_QUERY_TABLE} "SELECT name FROM hosts WHERE id='${HOST_ID}'")
+	echo ${HOST_NAME}
+}
+
+## @fn wpkg_getHostsUseProfileId()
+## @brief Return a list of hosts that use given profile
+## @param	(int)		profile ID
+## @param	(bool)		true to recurse through profile hierarchy
+## @return	(array)		list of hosts that use profile
+wpkg_getHostsUseProfileId() {
+	local PROFILE_ID=$1
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	local HOSTS=
+	# check host use main profile
+	local HOSTS2=$(${WPKG_QUERY_TABLE} "SELECT h.id FROM hosts AS h WHERE h.mainprofile_id = ${PROFILE_ID}")
+	# check host use additional profile
+	local HOSTS3=$(${WPKG_QUERY_TABLE} "SELECT hp.host_id FROM hosts_profiles AS hp WHERE hp.profile_id = ${PROFILE_ID}")
+	echo -e "${HOSTS}\n${HOSTS2}\n${HOSTS3}"
+	
+}
+
+## @fn wpkg_getHostStatus()
+wpkg_getHostStatus() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+	local HOST_ENABLED=$(mysql_select_table_column_data_with_criteria "hosts" "enabled" "id=${HOST_ID}")
+#	case ${HOST_ENABLED} in
+#		1)	return ${RC_DONE}
+#			;;
+#		0)	return ${RC_FAILED}
+#			;;
+#	esac
+	echo ${HOST_ENABLED}
+}
+
+## @fn wpkg_exportHostDetailsFromName()
+## @brief Export details of a HOST
+## @param	(int)	host id
+wpkg_exportHostDetailsFromName() {
+	local HOST_NAME=$1
+	[ ! "${HOST_NAME}" ] && return $(false)
+	local HOST_ID=$(wpkg_getHostIdFromName "${HOST_NAME}")
+	[ ! "${HOST_ID}" ] && efatal "Host '${HOST_NAME}' not found in database...." && return $(false)
+
+	while read line; do
+		#echo "${line}"
+		local key=$(echo ${line} | awk -F':' '{print $1}')
+		local value=$(echo ${line} | awk -F':' '{$1=""; print $0}' | sed -e 's/^[[:space:]]*//')
+		einfo "${key} = ${value}"
+		export WPKG_${key}="${value}"
+	done < <(${WPKG_QUERY_LIST} "SELECT * FROM hosts WHERE id = ${HOST_ID}" | tail -n+2)
+	#printenv | grep WPKG
+	local HOST_MAINPROFILE_NAME=$(wpkg_getProfileNameFromId ${WPKG_mainprofile_id})
+	einfo "mainprofile_name = ${HOST_MAINPROFILE_NAME} (${WPKG_mainprofile_id})"
+}
+
+## @fn wpkg_exportHostAdditionalProfiles()
+## @brief Export host's additional profiles
+## @param	(int)	host 
+wpkg_exportHostAdditionalProfiles() {
+	local HOST_NAME=$1
+	[ ! "${HOST_NAME}" ] && return $(false)
+	local HOST_ID=$(wpkg_getHostIdFromName "${HOST_NAME}")
+	[ ! "${HOST_ID}" ] && efatal "Host '${HOST_NAME}' not found in database...." && return $(false)
+
+	local ADDITIONAL_PROFILES_ID=$(${WPKG_QUERY_TABLE} "SELECT profile_id FROM hosts_profiles WHERE host_id = ${HOST_ID}")
+	for id in ${ADDITIONAL_PROFILES_ID}; do
+		einfo "$(wpkg_getProfileNameFromId ${id}) (${id})"
+	done | sort
+}
+
+## @fn wpkg_displayHostPackages()
+## @brief	Recursively display all packages of a host
+## @param	(int)	host id
+wpkg_displayHostPackages() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+
+	for id in $(wpkg_getAllPackagesFromHost ${HOST_ID}); do
+		einfo $(wpkg_getPackageNameFromId ${id})
+	done | sort
+}
+
+## @fn wpkg_getAllPackagesFromHost()
+## @brief	Get all package ids associated to a host
+## @param	$id		host id
+## @return	(array)	list of all ids of packages associated to host
+wpkg_getAllPackagesFromHost() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+
+	MAIN_PROFILE=$(wpkg_getMainProfileIdFromHostId ${HOST_ID} true)
+	edevel "MAIN_PROFILE = ${MAIN_PROFILE}"
+	ADDITIONAL_PROFILES=$(wpkg_getAdditionalProfilesFromHostId ${HOST_ID} true)
+	edevel "ADDITIONAL_PROFILES = ${ADDITIONAL_PROFILES}"
+	ALL_PROFILES=$(echo ${MAIN_PROFILE} ${ADDITIONAL_PROFILES} | tr -s ' ' '\n' | sort -n | uniq)
+	local LIST_PACKAGES_ID=
+	for id in ${ALL_PROFILES}; do
+		LIST_PACKAGES_ID="${LIST_PACKAGES_ID} $(wpkg_getPackageIdInProfileId ${id})"
+	done
+	edevel "LIST_PACKAGES_ID = ${LIST_PACKAGES_ID}"
+	echo ${LIST_PACKAGES_ID} | tr -s ' ' '\n' | sort -n | uniq
+}
+
+## @fn wpkg_deleteHostAdditionalProfileId()
+## @brief Delete host's additional profiles
+## @param	(int)	host id
+## @param	(int)	profile id
+wpkg_deleteHostAdditionalProfileId() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+	local PROFILE_ID=$2
+	[ ! "${PROFILE_ID}" ] && return $(false)
+
+	# first save data
+    wpkg_saveHost ${HOST_ID} "${DIRNAME}/backup"
+
+	eexec "${WPKG_QUERY_TABLE} \"DELETE FROM hosts_profiles WHERE host_id=${HOST_ID} AND profile_id=${PROFILE_ID}\""
+	local RC=$?
+	return ${RC}
+}
+
+## @fn wpkg_getMainProfileIdFromHost()
+## @brief Get mainprofile'id of given host name
+## @deprecated use wpkg_getMainProfileIdFromHostId() with a host id instead.
+## @param	(string)	host name (as declared in wpkg's hosts.xml)
+## @return	(int)		mainprofile's ID
+wpkg_getMainProfileIdFromHost() {
+	local HOST_NAME=$1
+	[ ! "${HOST_NAME}" ] && return $(false)
+	ewarn "${FUNCNAME}() is deprecated, use wpkg_getMainProfileIdFromHostId() with a host id instead."
+	ewarn "${FUNCNAME}() will be removed in future release of wpkg module"
+	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT mainprofile_id FROM hosts WHERE name='${HOST_NAME}'")
+	echo ${PROFILE_ID}
+}
+
+## @fn wpkg_getMainProfileIdFromHostId()
+## @brief Get mainprofile'id of given host id
+## @param	$id			host id
+## @param	$recurse	true: recursiveley search for dependency profiles, false: do not search down dependency tree
+## @retval	(array)		($recurse == true) list of profiles's id from mainprofile's id to root
+## @retval	(int)		($recurse == false) mainprofile's ID
+wpkg_getMainProfileIdFromHostId() {
+	local HOST_ID=$1
+	local RECURSE="${2}"
+	[ ! "${HOST_ID}" ] && return $(false)
+
+	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT mainprofile_id FROM hosts WHERE id='${HOST_ID}'")
+	if [ "${RECURSE}" ]; then
+		local DEPENDENCY_ID=
+		for p in ${PROFILE_ID}; do
+			DEPENDENCY_ID="${DEPENDENCY_ID} $(wpkg_profileGetParentProfiles ${p} ${RECURSE})"
+		done
+	fi
+	echo "${PROFILE_ID} ${DEPENDENCY_ID}"
+}
+
+## @fn wpkg_getAdditionalProfilesFromHostId()
+## @brief	Get a list of profile ids associated with a host id
+## @param	(int)	host id
+## @param	$recurse	true: recursiveley search for dependency profiles, false: do not search down dependency tree
+## @return	(array)	list of profile id
+wpkg_getAdditionalProfilesFromHostId() {
+	local HOST_ID="$1"
+	local RECURSE="${2}"
+	[ ! "${HOST_ID}" ] && return $(false)
+	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT profile_id FROM hosts_profiles WHERE host_id='${HOST_ID}'")
+	if [ "${RECURSE}" ]; then
+		local DEPENDENCY_ID=
+		for p in ${PROFILE_ID}; do
+			DEPENDENCY_ID="${DEPENDENCY_ID} $(wpkg_profileGetParentProfiles ${p} ${RECURSE})"
+		done
+	fi
+	echo "${PROFILE_ID} ${DEPENDENCY_ID}"
+}
+
+## @fn wpkg_getProfileNameFromId()
+## @rief Get profile name of profile id
+## @param	(int)		a profile id
+## @return	(string)	profile name
+wpkg_getProfileNameFromId() {
+	local PROFILE_ID=$1
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	local PROFILE_NAME=$(${WPKG_QUERY_TABLE} "SELECT id_text FROM profiles WHERE id='${PROFILE_ID}'")
+	echo ${PROFILE_NAME}
+}
+
+## @fn wpkg_disableHost()
+## @brief disable a host
+## @param $id	if of host
+## @retval true if operation succeed
+## @retval false otherwise
+wpkg_disableHost() {
+	local HOST_ID=$1
+	wpkg_setHostKeyValue ${HOST_ID} enabled 0
+}
+
+## @fn wpkg_setHostKeyValue()
+## @brief Set key/value pair into host definition
+## @param	(int)		host if
+## @param	(string)	key name
+## @param	(string)	value
+## @return	(bool)		true on success | false otherwise
+wpkg_setHostKeyValue() {
+	local HOST_ID=$1
+	[ ! "${HOST_ID}" ] && return $(false)
+	local KEY=${2}
+	local VALUE=${3}
+	if ! mysql_exist_db_table_column ${DATABASE} hosts "${KEY}"; then
+		eerror "COLUMN '${KEY}' does not exist in TABLE 'hosts' of DATABASE '${DATABASE}'"
+		return $(false)
+	fi
+	mysql_update_table_column_data hosts ${HOST_ID} "${KEY}" "${VALUE}"
+	local RC=$?
+	return ${RC}
+}
+
+## @fn wpkg_setHostMainProfileId()
+## @brief Set mainprofile for host
+## @param	(string)	host name
+## @param	(int)		id of profile
+## @return	(int)		return code of eexec
+wpkg_setHostMainProfileId() {
+	local HOST_NAME=$1
+	local HOST_ID=$(wpkg_getHostIdFromName "${HOST_NAME}")
+	local PROFILE_ID=$2
+	[ ! "${HOST_NAME}" ] && return $(false)
+	[ ! "${HOST_ID}" ] && return $(false)
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	# first save data
+	wpkg_saveHost ${HOST_ID} "${DIRNAME}/backup"
+	eexec "${WPKG_QUERY_TABLE} \"UPDATE hosts SET mainprofile_id=${PROFILE_ID}, modified='${MYSQL_DATE}' WHERE name='${HOST_NAME}'\""
+	return $?
+}
+
+## @fn wpkg_saveHost()
+## @brief Save datas about a particular host
+## @param    (int)       host's id
+## @param    (string)    path to backup file. file will be named with host's name and date
+## @return   (bool)      true on success | false otherwise
+wpkg_saveHost() {
+    local HOST_ID=${1}
+    [ ! "${HOST_ID}" ] && return $(false)
+    local HOST_NAME=$(wpkg_getHostNameFromId ${HOST_ID})
+    local PATH_TO_SQL="${2}"
+    [ ! "${PATH_TO_SQL}" ] && return $(false)
+    [ ! -d "${PATH_TO_SQL}" ] && mkdir -p "${PATH_TO_SQL}"
+
+    ${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} hosts --where="id=${HOST_ID}" > "${PATH_TO_SQL}/${HOST_NAME}-${BASH_DATE}.sql"
+    [ $? -ne 0 ] && return $(false)
+    ${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} hosts_profiles --where="host_id=${HOST_ID}" >> "${PATH_TO_SQL}/${HOST_NAME}-${BASH_DATE}.sql"
+    [ $? -ne 0 ] && return $(false)
+
+    return $(true)
+}
+
+
+#
+# PROFILES
+#
+## @fn wpkg_getProfileIdUsePackageId()
+## @brief Return a list of profiles that use given package
+## @param	(int)		package ID
+## @return	(array)		list of profiles that contain package
+wpkg_getProfileIdUsePackageId() {
+	local PACKAGE_ID=$1
+	[ ! "${PACKAGE_ID}" ] && return $(false)
+	#local PROFILES=$(${WPKG_QUERY_TABLE} "SELECT p.id FROM profiles AS p LEFT JOIN packages_profiles AS pp ON (pp.profile_id = p.id) WHERE pp.package_id = ${PACKAGE_ID}")
+	local PROFILES=$(${WPKG_QUERY_TABLE} "SELECT pp.profile_id FROM packages_profiles AS pp WHERE pp.package_id = ${PACKAGE_ID}")
+	echo ${PROFILES}
+}
+
+## @fn wpkg_profileGetParentProfiles()
+## @brief Get parent profiles of given profile
+## @param	(int)		profile ID
+## @param	$recurse
+## @return	(array)		parent profile's ID
+wpkg_profileGetParentProfiles() {
+	local PROFILE_ID=$1
+	local RECURSE="${2}"
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	local DEPENDENCY_ID=$(${WPKG_QUERY_TABLE} "SELECT dependency_id FROM profiles_profiles AS pp WHERE pp.profile_id = ${PROFILE_ID}")
+	if [ "${RECURSE}" -a "${DEPENDENCY_ID}" ]; then
+		for dId in ${DEPENDENCY_ID}; do
+			DEPENDENCY_ID="${DEPENDENCY_ID} $(wpkg_profileGetParentProfiles ${dId} ${RECURSE})"
+		done
+	fi
+	echo ${DEPENDENCY_ID}
+}
+
+## @fn wpkg_getProfileIdFromName()
+## @brief Get a profile ID given a profile name
+## @param	(string)	profile name
+## @return	(int)		id
+wpkg_getProfileIdFromName() {
+	local PROFILE_NAME=$1
+	[ ! "${PROFILE_NAME}" ] && return $(false)
+	local PROFILE_ID=$(${WPKG_QUERY_TABLE} "SELECT id FROM profiles WHERE id_text='${PROFILE_NAME}'")
+	echo ${PROFILE_ID}
+}
+
+## @fn wpkg_getProfileNameFromId()
+## @brief Get a profile name given its ID
+## @param	(int)		profile ID
+## @return	(string)	profile name
+wpkg_getProfileNameFromId() {
+	local PROFILE_ID=$1
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	local PROFILE_NAME=$(${WPKG_QUERY_TABLE} "SELECT id_text FROM profiles WHERE id='${PROFILE_ID}'")
+	echo ${PROFILE_NAME}
+}
+
+## @fn wpkg_profileIdIsHostMainProfileId()
+## @brief Test if profile id is the host's main profile
+## @param	(int)	profile_id
+## @param	(int)	host id
+## @return	(bool)	true if profile_id is host's main profile
+wpkg_profileIdIsHostMainProfileId() {
+	local PROFILE_ID=$1
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	local HOST_ID=$2
+	[ ! "${HOST_ID}" ] && return $(false)
+	
+	local HOST_MAINPROFILE_ID=$(wpkg_getMainProfileIdFromHostId ${HOST_ID})
+
+	[ ${PROFILE_ID} -eq ${HOST_MAINPROFILE_ID} ] && return $(true) || return $(false)
+}
+
+## @fn wpkg_addProfileToHostId()
+## @brief Add additional profile to host
+## @param	(int)		host id
+## @param	(int)		id of profile
+## @return	(bool)		true on success | false otherwise
+wpkg_addProfileToHostId() {
+	local HOST_ID=$1
+	local PROFILE_ID=$2
+	[ ! "${HOST_ID}" ] && return $(false)
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	# check if host already use additional profile PROFILE_ID and if so return
+	if wpkg_checkHostIdUseAdditionalProfileId ${HOST_ID} ${PROFILE_ID}; then return $(true); fi
+	eexec "${WPKG_QUERY_TABLE} \"INSERT INTO hosts_profiles (host_id,profile_id) VALUES (${HOST_ID},${PROFILE_ID})\""
+	return $?
+}
+
+## @fn wpkg_checkHostIdUseAdditionalProfileId()
+## @brief Check if HOST use addition PROFILE
+## @param	(int)	host's id
+## @param	(int)	profile's id
+## @return	(bool)	true if host use profile | false otherwise
+wpkg_checkHostIdUseAdditionalProfileId() {
+	local HOST_ID=$1
+	local PROFILE_ID=$2
+	[ ! "${HOST_ID}" ] && return $(false)
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	local ID=$(${WPKG_QUERY_TABLE} "SELECT id FROM hosts_profiles WHERE host_id=${HOST_ID} AND profile_id=${PROFILE_ID}")
+	[ ! "${ID}" ] && return $(false)
+	[ ${ID} -gt 0 ] && return $(true)
+	return $(false)
+}
+
+## @fn wpkg_exportProfileDetailsFromName()
+## @brief Export details of a PROFILE
+## @param	(int)	host id
+wpkg_exportProfileDetailsFromName() {
+	local PROFILE_NAME=$1
+	[ ! "${PROFILE_NAME}" ] && return $(false)
+	local PROFILE_ID=$(wpkg_getProfileIdFromName "${PROFILE_NAME}")
+	[ ! "${PROFILE_ID}" ] && efatal "Host '${PROFILE_NAME}' not found in database...." && return $(false)
+
+	while read line; do
+		#echo "${line}"
+		local key=$(echo ${line} | awk -F':' '{print $1}')
+		local value=$(echo ${line} | awk -F':' '{$1=""; print $0}' | sed -e 's/^[[:space:]]*//')
+		einfo "${key} = ${value}"
+		export WPKG_${key}="${value}"
+	done < <(${WPKG_QUERY_LIST} "SELECT * FROM profiles WHERE id = ${PROFILE_ID}" | tail -n+2)
+	#printenv | grep WPKG
+
+	# TODO Depends On
+}
+
+#
+# PACKAGES
+#
+## @fn wpkg_getAllPackagesId()
+## @brief List all packages from database
+## @return	(array)		list of package'ids
+wpkg_getAllPackagesId() {
+	${WPKG_QUERY_TABLE} "SELECT id FROM packages"
+}
+
+## @fn wpkg_getAllPackagesIdWithPattern()
+## @brief List all packages from database matching given pattern
+## @param	(string)	pattern to search for
+## @return	(array)		list of package'ids
+wpkg_getAllPackagesIdWithPattern() {
+	local PATTERN="${1}"
+	${WPKG_QUERY_TABLE} "SELECT id FROM packages WHERE name LIKE '%${PATTERN}%'"
+}
+
+## @fn wpkg_getPackageIdFromName()
+## @brief Get a package ID given a package name
+## @param	(string)	package name
+## @return	(int)		id
+wpkg_getPackageIdFromName() {
+	local PACKAGE_NAME=$1
+	[ ! "${PACKAGE_NAME}" ] && return $(false)
+	local PACKAGE_ID=$(${WPKG_QUERY_TABLE} "SELECT id FROM packages WHERE id_text='${PACKAGE_NAME}'")
+	echo ${PACKAGE_ID}
+}
+
+## @fn wpkg_getPackageNameFromId()
+## @brief Get a package name given a package Id
+## @param	(int)		id
+## @return	(string)	package name
+wpkg_getPackageNameFromId() {
+	local PACKAGE_ID=$1
+	[ ! "${PACKAGE_ID}" ] && return $(false)
+	local PACKAGE_NAME=$(${WPKG_QUERY_TABLE} "SELECT name FROM packages WHERE id=${PACKAGE_ID}")
+	echo ${PACKAGE_NAME}
+}
+
+## @fn wpkg_getPackageIdTextFromId()
+## @brief Get a package id-text given a package Id
+## @param	(int)		id
+## @return	(string)	package name
+wpkg_getPackageIdTextFromId() {
+	local PACKAGE_ID=$1
+	[ ! "${PACKAGE_ID}" ] && return $(false)
+	local PACKAGE_IDTEXT=$(${WPKG_QUERY_TABLE} "SELECT id_text FROM packages WHERE id=${PACKAGE_ID}")
+	echo ${PACKAGE_IDTEXT}
+}
+
+## @fn wpkg_getPackageIdInProfileId()
+## @brief Return list of package into profile id
+## @param	(int)	profile id
+## @return	(array)	list of package id
+wpkg_getPackageIdInProfileId() {
+	local PROFILE_ID=$1
+	[ ! "${PROFILE_ID}" ] && return $(false)
+	
+	local PACKAGES=$(${WPKG_QUERY_TABLE} "SELECT pp.package_id FROM packages_profiles AS pp WHERE pp.profile_id = ${PROFILE_ID}")
+	echo ${PACKAGES}
+
+}
+
+## @fn wpkg_scriptUsedByPackage()
+## @brief Check if given install.cmd is used by any package
+## @param	(string)	full\path\to\install.cmd (windows style)
+## @return	(array)		list of package(s) that use this script
+wpkg_scriptUsedByPackage() {
+	local SCRIPT="$1"
+	[ ! "${SCRIPT}" ] && return $(false)
+	# WOW we need quadruple each \ on the command line to match correctly data into the database ???
+	SCRIPT=${SCRIPT//\\/\\\\\\\\}
+	local PACKAGES=$(${WPKG_QUERY_TABLE} "SELECT p.id_text FROM packages AS p LEFT JOIN package_actions AS pa ON ( pa.package_id = p.id) WHERE pa.command LIKE '%${SCRIPT}%'" | sort | uniq)
+	echo ${PACKAGES}
+}
+
+## @fn wpkg_getCommandsFromPackage()
+## @brief Get list of command of given type
+## @param	(int)		package ID
+## @param	(string)	type of command (install/upgrade/downgrade/remove)
+## @return	(array)		list of commands
+wpkg_getCommandsFromPackage() {
+	local PACKAGE_ID=${1}
+	[ ! "${PACKAGE_ID}" ] && return $(false)
+	# as we run on an old bash, we do not have case parameter expansion ${VAR^pattern}
+	local TYPE_STRING=$(echo ${2} | tr [[:lower:]] [[:upper:]])
+	[ ! "${TYPE_STRING}" ] && return $(false)
+	local TYPE_ENUM_VAR=COMMAND_TYPE_${TYPE_STRING}
+	# as we run on an old bash, we do not have associative arrays. so we use double expansion
+	local TYPE_NUM=${!TYPE_ENUM_VAR}
+	local COMMANDS=$(${WPKG_QUERY_TABLE} "SELECT command FROM package_actions WHERE package_id = ${PACKAGE_ID} AND type = ${TYPE_NUM}")
+	echo ${COMMANDS}
+}
+
+## @fn wpkg_savePackage()
+## @brief Save datas about a particular package
+## @param	(int)		package's id
+## @param	(string)	path to backup file. file will be named with package's id-text and date
+## @return	(bool)		true on success | false otherwise
+wpkg_savePackage() {
+	local PACKAGE_ID=${1}
+	[ ! "${PACKAGE_ID}" ] && return $(false)
+	local PACKAGE_IDTEXT=$(wpkg_getPackageIdTextFromId ${PACKAGE_ID})
+	local PATH_TO_SQL="${2}"
+	[ ! "${PATH_TO_SQL}" ] && return $(false)
+	[ ! -d "${PATH_TO_SQL}" ] && mkdir -p "${PATH_TO_SQL}"
+
+	${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} packages --where="id=${PACKAGE_ID}" > "${PATH_TO_SQL}/${PACKAGE_IDTEXT}-${BASH_DATE}.sql"
+	[ $? -ne 0 ] && return $(false)
+	${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} package_actions --where="package_id=${PACKAGE_ID}" >> "${PATH_TO_SQL}/${PACKAGE_IDTEXT}-${BASH_DATE}.sql"
+	[ $? -ne 0 ] && return $(false)
+	${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} package_checks --where="package_id=${PACKAGE_ID}" >> "${PATH_TO_SQL}/${PACKAGE_IDTEXT}-${BASH_DATE}.sql"
+	[ $? -ne 0 ] && return $(false)
+	${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} packages_packages --where="package_id=${PACKAGE_ID}" >> "${PATH_TO_SQL}/${PACKAGE_IDTEXT}-${BASH_DATE}.sql"
+	[ $? -ne 0 ] && return $(false)
+	${MYSQLDUMP} ${MYSQLDUMP_OPTIONS} packages_profiles --where="package_id=${PACKAGE_ID}" >> "${PATH_TO_SQL}/${PACKAGE_IDTEXT}-${BASH_DATE}.sql"
+	[ $? -ne 0 ] && return $(false)
+	return $(true)
+}
+
+## @fn wpkg_removePackage()
+## @brief Remove entirely a package from database
+## @param	(int)		package's id
+## @return	(bool)		true on success | false otherwise
+wpkg_removePackage() {
+	local PACKAGE_ID=${1}
+	[ ! "${PACKAGE_ID}" ] && return $(false)
+
+	# save data before deleting anything
+	wpkg_savePackage ${PACKAGE_ID} "${DIRNAME}/backup"
+	[ $? -ne 0 ] && return $(false)
+
+	# remove package from profiles
+	[ "${DEBUG}" ] && ebegin ">> deleting package from profiles"
+	${WPKG_QUERY_TABLE} "DELETE FROM packages_profiles WHERE package_id = ${PACKAGE_ID}"
+	[ "${DEBUG}" ] && eend $?
+	# remove package from dependancy graph
+	[ "${DEBUG}" ] && ebegin ">> deleting package from package dependency"
+	${WPKG_QUERY_TABLE} "DELETE FROM packages_packages WHERE package_id = ${PACKAGE_ID} OR dependency_id = ${PACKAGE_ID}"
+	[ "${DEBUG}" ] && eend $?
+	# remove package checks
+	[ "${DEBUG}" ] && ebegin ">> deleting package from package checks"
+	${WPKG_QUERY_TABLE} "DELETE FROM package_checks WHERE package_id = ${PACKAGE_ID}"
+	[ "${DEBUG}" ] && eend $?
+	# remove package actions
+	[ "${DEBUG}" ] && ebegin ">> deleting package from package actions"
+	${WPKG_QUERY_TABLE} "DELETE FROM package_actions WHERE package_id = ${PACKAGE_ID}"
+	[ "${DEBUG}" ] && eend $?
+	# finaly remove package itself
+	[ "${DEBUG}" ] && ebegin ">> deleting package from packages"
+	${WPKG_QUERY_TABLE} "DELETE FROM packages WHERE id = ${PACKAGE_ID}"
+	[ "${DEBUG}" ] && eend $?
+	return $(true)
+}
+
+## @fn wpkg_exportPackageDetailsFromName()
+## @brief Export details of a PACKAGE
+## @param	(int)	host id
+wpkg_exportPackageDetailsFromName() {
+	local PACKAGE_NAME=$1
+	[ ! "${PACKAGE_NAME}" ] && return $(false)
+	local PACKAGE_ID=$(wpkg_getPackageIdFromName "${PACKAGE_NAME}")
+	[ ! "${PACKAGE_ID}" ] && efatal "Package '${PACKAGE_NAME}' not found in database...." && return $(false)
+
+	while read line; do
+		#echo "${line}"
+		local key=$(echo ${line} | awk -F':' '{print $1}')
+		local value=$(echo ${line} | awk -F':' '{$1=""; print $0}' | sed -e 's/^[[:space:]]*//')
+		einfo "${key} = ${value}"
+		export WPKG_${key}="${value}"
+	done < <(${WPKG_QUERY_LIST} "SELECT * FROM packages WHERE id = ${PACKAGE_ID}" | tail -n+2)
+	#printenv | grep WPKG
+}
+

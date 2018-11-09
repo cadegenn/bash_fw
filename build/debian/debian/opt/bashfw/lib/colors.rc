@@ -1,0 +1,74 @@
+## @file colors.rc
+## @brief list usefull colors under COLOR_ namespace
+## @author Charles-Antoine Degennes <cadegenn@gmail.com>
+## @copyright	Copyright (c) 2015-2017 Charles-Antoine Degennes <cadegenn@gmail.com>
+## @note	You can display all 256 foreground colors of a terminal by entering
+##			for i in {0..255}; do echo -e "\e[38;05;${i}m${i}"; done | column -c 80 -s ' '; echo -e "\e[m"
+##			or even better
+##			for i in {0..255}; do echo -e "\e[38;05;${i}m\\\e[38;05;${i}m"; done | column -c 80 -s ' '; echo -e "\e[m"
+##
+
+#
+# Copyright (C) 2015-2017  Charles-Antoine Degennes <cadegenn@gmail.com>
+# 
+# This file is part of The API project
+# 
+#     The API project is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+# 
+#     The API project is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+# 
+#     You should have received a copy of the GNU General Public License
+#     along with The API project.  If not, see <http://www.gnu.org/licenses/>.
+# 
+#
+# Changelog
+# 2014.11.19, DCA -		delete *_msg()
+# 2008.04.30, DCA -		change bad_msg in RED and warn_msg in YELLOW
+#						bad_msg() -> delete splash ... because there is no bootsplash yet
+# 2007.06.14, DCA -		initial version
+#
+
+
+# From KNOPPIX LINUXRC
+# Reset fb color mode
+#COLOR_RESET="\033]R"
+# ANSI COLORS
+# Erase to end of line
+COLOR_CRE="
+\033[K"
+# Clear and reset Screen
+COLOR_CLEAR="\033c"
+# Normal color
+#COLOR_NORMAL="\e[0;49;39m"
+COLOR_NORMAL="\e[0m"
+COLOR_BLACK="\e[38;05;0m"
+COLOR_RED="\e[38;05;1m"
+COLOR_GREEN="\e[38;05;2m"
+COLOR_BROWN="\e[38;05;3m"
+COLOR_BLUE="\e[38;05;4m"
+COLOR_VIOLET="\e[38;05;5m"
+COLOR_CYAN="\e[38;05;6m"
+COLOR_SILVER="\e[38;05;7m"
+COLOR_GREY="\e[38;05;8m"
+COLOR_GRAY="\e[38;05;8m"
+COLOR_LIGHTRED="\e[38;05;9m"
+COLOR_LIME="\e[38;05;10m"
+COLOR_YELLOW="\e[38;05;11m"
+COLOR_LIGHTBLUE="\e[38;05;12m"
+COLOR_LIGHTVIOLET="\e[38;05;13m"
+COLOR_LIGHTCYAN="\e[38;05;14m"
+COLOR_WHITE="\e[38;05;15m"
+
+COLOR_BACK_UP="\033[1K\033[0G"
+COLOR_WARN=${COLOR_YELLOW}
+COLOR_BAD="\033[31;1m"
+COLOR_BOLD="\033[1m"
+COLOR_GOOD="\033[32;1m"
+COLOR_DEBUG=${MEDGRAY}
+COLOR_RESET=${COLOR_NORMAL}

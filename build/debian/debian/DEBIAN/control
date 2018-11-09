@@ -1,0 +1,8 @@
+Package: bashfw
+Version: 1.0.0-beta.7
+Architecture: all
+Maintainer: Charles-Antoine Degennes <cadegenn@gmail.com>
+Section: utils
+Priority: optional
+Installed-Size: 355
+Description: A small Bash FrameWork
