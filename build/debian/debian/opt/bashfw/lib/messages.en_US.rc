@@ -1,9 +1,0 @@
-rc_done="[${THEME_GOOD_COLOR}  OK  ${COLOR_NORMAL}]"
-rc_running="[${THEME_GOOD_COLOR}running${COLOR_NORMAL}]"
-rc_failed="[${THEME_ERROR_COLOR} fail ${COLOR_NORMAL}]"
-rc_missed="[${THEME_WARNING_COLOR}missing${COLOR_NORMAL}]"
-rc_skipped="[${THEME_DEBUG_COLOR}skipped${COLOR_NORMAL}]"
-rc_dead="[${THEME_WARNING_COLOR} dead ${COLOR_NORMAL}]"
-rc_unused="[${THEME_DEBUG_COLOR}unused${COLOR_NORMAL}]"
-rc_unknown="[${THEME_DEBUG_COLOR}unknown${COLOR_NORMAL}]"
-
