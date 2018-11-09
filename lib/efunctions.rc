@@ -105,9 +105,11 @@ eerror() {
 ## @brief display error message and exit
 ## @param $message  the error message to display
 efatal() {
-	[ "${QUIET}" ] && exit 1
 	eerror "$@\n"
-	exit 1
+	
+	# if we are in a script, exit it and return to the shell
+	# if we are in a sourced file, return to the main script
+	[ "$0" == "bash" ] && return 2 || exit 1
 }
 
 ## @fn einfo()
