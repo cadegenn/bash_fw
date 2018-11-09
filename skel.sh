@@ -87,6 +87,11 @@ declare BASHFW_THEME=ansi
 ## @brief array of user parameters
 declare -a ARGV
 
+## @var TRACE
+## @brief instruct script to print stack trace on error
+## @note  stack trace is always displayed on fatal error
+declare TRACE=
+
 ## @fn usage()
 ## @brief Print usage informations (help screen)
 usage() {
@@ -99,6 +104,7 @@ usage() {
 		 	-dev	devel mode: print additional development data
 		 	-ask	ask for user confirmation for each individual eexec() call
 		 			NOTE: it is not affected by -y
+			-trace	print stack trace on error
 		 	-y		assume 'yes' to all questions
 		 	-s		simulate: do not really execute commands
 		 	-nc		no color. Do not use color theme.
@@ -143,6 +149,8 @@ while [ $# -gt 0 ]; do
 		-y)		YES=true
 				;;
 		-ask)	ASK=true
+				;;
+		-trace)	TRACE=true
 				;;
 		-s)		SIMULATE=true
 				;;
