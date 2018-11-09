@@ -93,7 +93,7 @@ declare -a ARGV
 declare TRACE=
 
 ## @fn usage()
-## @brief Print usage informations (help screen)
+## @brief Print usage informations of common parameters
 usage() {
 	cat <<- EOF
 		COMMON PARAMETERS: ${BASENAME} [-u -q -v -d -dev -ask -y -s -nc -theme theme]
@@ -104,7 +104,7 @@ usage() {
 		 	-dev	devel mode: print additional development data
 		 	-ask	ask for user confirmation for each individual eexec() call
 		 			NOTE: it is not affected by -y
-			-trace	print stack trace on error
+		 	-trace	print stack trace on error
 		 	-y		assume 'yes' to all questions
 		 	-s		simulate: do not really execute commands
 		 	-nc		no color. Do not use color theme.
@@ -134,6 +134,7 @@ while [ $# -gt 0 ]; do
 				VERBOSE=
 				DEBUG=
 				DEVEL=
+				TRACE=
 				;;
 		-v)		VERBOSE=true
 				;;
@@ -188,6 +189,25 @@ main() {
 
 	eenter "${FUNCNAME}()"
 
+	# 
+	#  ######  ########    ###    ########  ########    ##     ## ######## ########  ######## 
+	# ##    ##    ##      ## ##   ##     ##    ##       ##     ## ##       ##     ## ##       
+	# ##          ##     ##   ##  ##     ##    ##       ##     ## ##       ##     ## ##       
+	#  ######     ##    ##     ## ########     ##       ######### ######   ########  ######   
+	#       ##    ##    ######### ##   ##      ##       ##     ## ##       ##   ##   ##       
+	# ##    ##    ##    ##     ## ##    ##     ##       ##     ## ##       ##    ##  ##       
+	#  ######     ##    ##     ## ##     ##    ##       ##     ## ######## ##     ## ######## 
+	# 
+	# DO NOT MODIFY ANYTHING ABOVE THIS !!
+	#
+
+	# you can declare your own variable
+	# ## @var	myvar
+	# ## @brief	my custom variable
+	# declare myvar=
+
+	## @fn		help()
+	## @brief	displays the script's help screen
 	help() {
 		cat <<- EOF
 			DESCRIPTION: ${BASENAME} do some stuff
@@ -216,19 +236,18 @@ main() {
 		shift
 	done
 
-	#################################################
-	##
-	## YOUR SCRIPT GOES HERE !
-	##
-	##################################################
-	
+	# 
+	# DO NOT MODIFY ANYTHING BELOW THIS !!
+	#
+	# ######## ##    ## ########     ##     ## ######## ########  ######## 
+	# ##       ###   ## ##     ##    ##     ## ##       ##     ## ##       
+	# ##       ####  ## ##     ##    ##     ## ##       ##     ## ##       
+	# ######   ## ## ## ##     ##    ######### ######   ########  ######   
+	# ##       ##  #### ##     ##    ##     ## ##       ##   ##   ##       
+	# ##       ##   ### ##     ##    ##     ## ##       ##    ##  ##       
+	# ######## ##    ## ########     ##     ## ######## ##     ## ######## 
+	# 
 
-
-	##################################################
-	##
-	## YOUR SCRIPT END HERE !
-	##
-	##################################################
 	eleave "${FUNCNAME}()"
 
 }
