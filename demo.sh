@@ -1,10 +1,9 @@
 #!/bin/bash
 
-## @file skel.rc
-## @brief		skeleton file for new script.
-## 				Just copy this file to a new script.sh to begin coding
-## @author		Charles-Antoine Degennes <cadegenn]gmail.com>
-## @copyright	Copyright (C) 2015-2016  Charles-Antoine Degennes <cadegenn@gmail.com>
+## @file 		demo.sh
+## @brief		demo script for the Tiny Bash Framework
+## @author		Charles-Antoine Degennes <cadegenn@gmail.com>
+## @copyright	Copyright (C) 2015-2018  Charles-Antoine Degennes <cadegenn@gmail.com>
 
 # 
 # This file is part of TinyBashFramework
@@ -134,6 +133,7 @@ while [ $# -gt 0 ]; do
 				VERBOSE=
 				DEBUG=
 				DEVEL=
+				TRACE=
 				;;
 		-v)		VERBOSE=true
 				;;
@@ -205,6 +205,7 @@ main() {
 	edevel "YES = ${YES}"
 	edevel "SIMULATE = ${SIMULATE}"
 	edevel "TRACE = ${TRACE}"
+	edevel "BASHFW_PATH = ${BASHFW_PATH}"
 
 	ebreak
 
@@ -252,5 +253,6 @@ main() {
 
 }
 
-main
+main "${ARGV[@]}"
+unset ARGV
 echo
