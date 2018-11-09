@@ -329,7 +329,11 @@ equestion() {
 	[ "${answer}" ] && echo -ne "[${THEME_QUESTION_DEFAULT_ANSWER_COLOR}${answer}${COLOR_NORMAL}] " >> ${TTY}
 
 	# -y or -yes was specified on command line
-    [ "${YES}" ] && echo ${answer} && echo >> ${TTY} && return
+    if [ "${YES}" ]; then
+		echo ${answer}
+		echo >> ${TTY}
+		return
+	fi
 
 	[ "${passwd}" ] && read -s REPONSE || read REPONSE
 	echo ${REPONSE:-${answer}}
