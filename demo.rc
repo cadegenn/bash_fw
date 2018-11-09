@@ -1,0 +1,4 @@
+eindent
+etitle $BASH_SOURCE
+efatal "A fatal error occured."
+eoutdent
