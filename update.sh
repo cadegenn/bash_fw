@@ -249,11 +249,14 @@ main() {
 
 	# fetch lines no. of skel.sh of known anchors
 	LINENO_HEAD_START=$(grep -n "^## @var BASENAME$" ${SKEL} | cut -d':' -f1)
+	[ ! "${LINENO_HEAD_START}" ] && efatal "^## @var BASENAME anchor not found in script."
 	LINENO_MAIN_START=$(grep -n "^main()" ${SKEL} | cut -d':' -f1)
+	[ ! "${LINENO_MAIN_START}" ] && efatal "^main() anchor not found in script."
 	for n in $(grep -n "^}$" ${SKEL} | cut -d':' -f1); do
 		[ ${n} -lt ${LINENO_MAIN_START} ] && continue
 	done
 	LINENO_MAIN_END=${n}
+	edevel "LINENO_HEAD_START = ${LINENO_HEAD_START}"
 	edevel "LINENO_MAIN_START = ${LINENO_MAIN_START}"
 	edevel "LINENO_MAIN_END = ${LINENO_MAIN_END}"
 
