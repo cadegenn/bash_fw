@@ -1,0 +1,58 @@
+#!/bin/bash
+## 
+## @file github.rc
+## @project bash_fw
+## @author Charles-Antoine Degennes (cadegenn@gmail.com)
+## @date 2018.11.23
+## @copyright (c) 2018 Charles-Antoine Degennes
+## 
+## @modified 
+## @modifiedby 
+## 
+## This file is part of Tiny # bash Framework
+## 
+##        Tiny # bash Framework is free software: you can redistribute it and/or modify
+##        it under the terms of the GNU General Public License as published by
+##        the Free Software Foundation, either version 3 of the License, or
+##        (at your option) any later version.
+## 
+##        Tiny # bash Framework is distributed in the hope that it will be useful,
+##        but WITHOUT ANY WARRANTY; without even the implied warranty of
+##        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##        GNU General Public License for more details.
+## 
+##        You should have received a copy of the GNU General Public License
+##        along with Tiny # bash Framework.  If not, see <http://www.gnu.org/licenses/>.
+## 
+## 
+
+## @var SOURCE_BASENAME
+## @brief filename of currently sourced file (without pathname but with extension)
+declare SOURCE_BASENAME=$(basename ${BASH_SOURCE})
+## @var SOURCE_DIRNAME
+## @brief absolute path name to currently sourced file (without filename)
+declare SOURCE_DIRNAME=$(cd $(dirname ${BASH_SOURCE}); pwd)
+
+source "${SOURCE_DIRNAME}/jq.rc"
+
+## @fn Get-GithubLatestRelease()
+## @brief	Get the latest release of given Github repository
+## @param	$repo	repository of the form user/project
+## @return	(string)	Tag name of the latest release
+Get-GithubLatestRelease() {
+	# eenter "${FUNCNAME}($@)"
+	curl --silent "https://api.github.com/repos/$1/releases/latest" | jq -r .tag_name
+	# eleave "${FUNCNAME}()"
+}
+
+## @fn Get-GithubLatestReleaseDownloadLink()
+## @brief	Get the latest release of given Github repository
+## @param	$repo	repository of the form user/project
+## @return	(string)	Download link of the latest release
+## @warning	This function return the link of the 1st asset in the github release
+Get-GithubLatestReleaseDownloadLink() {	
+	# eenter "${FUNCNAME}($@)"
+	curl --silent "https://api.github.com/repos/$1/releases/latest" | jq -r '.assets[0].browser_download_url'
+	# eleave "${FUNCNAME}()"
+}
+
