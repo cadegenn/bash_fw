@@ -99,14 +99,16 @@ eerror() {
 	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}"
+	estacktrace
 }
 
 ## @fn efatal()
 ## @brief display error message and exit
 ## @param $message  the error message to display
 efatal() {
-	eerror "$@\n"
-	
+	TRACE=true
+	eerror "$@ Aborting."
+	echo
 	# if we are in a script, exit it and return to the shell
 	# if we are in a sourced file, return to the main script
 	[ "$0" == "bash" ] && return 2 || exit 1
@@ -130,6 +132,17 @@ eleave() {
 	if [ ${DEVEL} ]; then
 		echo -ne "\n${INDENT}${THEME_ENTER_COLOR} << ${message} ${COLOR_NORMAL}" >> ${TTY}
 	fi
+}
+
+## @fn estacktrace()
+## @brief print the entire stack trace
+estacktrace() {
+	[ "${QUIET}" ] && return
+	[ ! "${TRACE}" ] && return
+	ewarn "Stack trace : (line no. / funcname / filename)"
+	eindent
+	local i=1; while e=$(caller $i) ;do ewarn $e; ((i++)) ;done
+	eoutdent
 }
 
 ## @fn esubtitle()
@@ -222,9 +235,9 @@ egetx() {
 ## @param $x new position to set cursor to
 ## @see @url http://ascii-table.com/ansi-escape-sequences.php
 esetx() {
-	# test for travis build
-	echo " "
-	return
+	# # test for travis build
+	# echo " "
+	# return
 
 	local new_x=${1}
 	local cur_x=$(egetx)
