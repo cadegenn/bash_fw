@@ -3,6 +3,14 @@
 ## @author Charles-Antoine Degennes <cadegenn@gmail.com>
 ## @copyright	(c) 2017 Charles-Antoine Degennes <cadegenn@gmail.com>
 
+## @var		WARNINGS
+## @brief	array of warnings found during execution of script
+declare -a WARNINGS
+
+## @var		ERRORS
+## @brief	array of non-blocking errors found during execution of script
+declare -a ERRORS
+
 ## @fn ebegin()
 ## @brief display begin message
 ## @param $message  the message to display
@@ -96,8 +104,9 @@ eenter() {
 ## @brief display error message
 ## @param $message  the error message to display
 eerror() {
-	[ "${QUIET}" ] && return
 	local message=${@}
+	ERRORS+=("$(caller 0) -- ${message}")
+	[ "${QUIET}" ] && return
 	echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${message} ${COLOR_NORMAL}"
 	estacktrace
 }
@@ -140,9 +149,14 @@ estacktrace() {
 	[ "${QUIET}" ] && return
 	[ ! "${TRACE}" ] && return
 	ewarn "Stack trace : (line no. / funcname / filename)"
-	eindent
-	local i=1; while e=$(caller $i) ;do ewarn $e; ((i++)) ;done
-	eoutdent
+	local i=1; 
+	(
+		while e=$(caller $i) ;do
+			# we do not call ewarn because it alter ${WARNINGS} array
+			echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${e} ${COLOR_NORMAL}";
+			((i++));
+		done
+	) | column -t -s $' '
 }
 
 ## @fn esubtitle()
@@ -152,6 +166,36 @@ esubtitle() {
 	[ "${QUIET}" ] && return
 	local message=${@}
 	echo -ne "\n${INDENT}${THEME_TITLE_COLOR} * ${THEME_SUBTITLE_COLOR}${message}${COLOR_NORMAL}"
+}
+
+## @fn esumerrors()
+## @brief	display the summary of all errors encountered until now
+esumerrors() {
+	[ "${QUIET}" ] && return
+	TRACE=
+	einfo "Errors so far :"
+	eindent
+	for ((i=O; i<${#ERRORS[*]}; i++)); do
+		# we do not call ewarn because it alter ${ERRORS} array
+		# and so we'll go in an infinite loop
+		echo -ne "\n${INDENT}${THEME_ERROR_COLOR} * ERR: ${ERRORS[$i]} ${COLOR_NORMAL}"
+	done
+	eoutdent
+}
+
+## @fn esumwarnings()
+## @brief	display the summary of all warnings encountered until now
+esumwarnings() {
+	[ "${QUIET}" ] && return
+	TRACE=
+	einfo "Warnings so far :"
+	eindent
+	for ((i=O; i<${#WARNINGS[*]}; i++)); do
+		# we do not call ewarn because it alter ${WARNINGS} array
+		# and so we'll go in an infinite loop
+		echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ERR: ${WARNINGS[$i]} ${COLOR_NORMAL}"
+	done
+	eoutdent
 }
 
 ## @fn etitle()
@@ -181,8 +225,9 @@ everbose() {
 ## @brief display warning message
 ## @param $message  the warning to display
 ewarn() {
-	[ "${QUIET}" ] && return
 	local message=${@}
+	WARNINGS+=("$(caller 0) -- ${message}")
+	[ "${QUIET}" ] && return
 	echo -ne "\n${INDENT}${THEME_WARNING_COLOR} * ${message} ${COLOR_NORMAL}"
 }
 
