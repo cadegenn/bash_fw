@@ -241,8 +241,22 @@ main() {
 	ewarn "/!\\ ATTENTION !!"
 	eerror "An error has occured"
 
-	source "${DIRNAME}/demo.rc"
+	ewarn "This is a warning"
+	everbose "Say something"
 
+	echo ${WARNINGS[@]}
+	echo ${ERRORS[@]}
+	ebreak
+	declare -p WARNINGS
+	declare -p ERRORS
+
+	# source "${DIRNAME}/demo.rc"
+
+	ebreak
+	esumwarnings
+	ebreak
+	esumerrors
+	ebreak
 
 	##################################################
 	##
