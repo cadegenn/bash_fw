@@ -129,12 +129,6 @@ trap onExit HUP INT KILL TERM EXIT
 while [ $# -gt 0 ]; do
 	case $1 in
 		-q)		QUIET=true
-				ASK=
-				YES=true
-				VERBOSE=
-				DEBUG=
-				DEVEL=
-				TRACE=
 				;;
 		-v)		VERBOSE=true
 				;;
@@ -176,6 +170,16 @@ while [ $# -gt 0 ]; do
 	esac
 	shift
 done
+
+# make sure QUIET is really quiet
+if [ "${QUIET}" ]; then
+	ASK=
+	YES=true
+	VERBOSE=
+	DEBUG=
+	DEVEL=
+	TRACE=
+fi
 
 # load API
 source "${BASHFW_PATH}/lib/api.rc" || {
