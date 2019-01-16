@@ -332,29 +332,32 @@ eexec() {
 	edebug "${CMD}"
 	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
 	if [ "${DEVEL}" ]; then
-		#local output=$(${CMD} 2>&1) # $? do NOT work
-		#output=$(${CMD} 2>&1) # $? DO work
-		#local output=$(${CMD}) # $? do NOT work
-		# local output=$(eval ${CMD}) # $? do NOT work
-		output=$(eval ${CMD}) # $? DO work
-		#${CMD} # $? DO work
-		#eval ${CMD} # $? DO work
+		# #local output=$(${CMD} 2>&1) # $? do NOT work
+		# #output=$(${CMD} 2>&1) # $? DO work
+		# #local output=$(${CMD}) # $? do NOT work
+		# # local output=$(eval ${CMD}) # $? do NOT work
+		# output=$(eval ${CMD}) # $? DO work
+		echo -ne "\n${THEME_DEVEL_COLOR}"
+		${CMD} # $? DO work
+		# # eval ${CMD} # $? DO work
 		RC=$?
 		[ "${QUIET}" ] && return ${RC}
-		[ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}"
+		# [ "${output}" ] && echo -ne "\n${THEME_DEVEL_COLOR}${output}"
 		echo -ne " (RC = ${RC}) "
 	elif [ "${DEBUG}" ]; then
-		#output=$(${CMD} 2>&1 > /dev/null)
-		#output=$(${CMD})
-		#${CMD}
-		output=$(eval ${CMD} 2>&1 > /dev/null)
+		# #output=$(${CMD} 2>&1 > /dev/null)
+		# #output=$(${CMD})
+		# #${CMD}
+		# output=$(eval ${CMD} 2>&1 > /dev/null)
+		${CMD} > /dev/null
 		RC=$?
 		[ "${QUIET}" ] && return ${RC}
-		[ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}"
+		# [ "${output}" ] && echo -ne "\n${THEME_ERROR_COLOR}${output}"
 		#(eval ${CMD}) > /dev/null
 		echo -ne " (RC = ${RC}) "
 	else
-		eval ${CMD} > /dev/null 2>&1
+		# eval ${CMD} > /dev/null 2>&1
+		${CMD} > /dev/null 2>&1
 		RC=$?
 		[ "${QUIET}" ] && return ${RC}
 	fi
