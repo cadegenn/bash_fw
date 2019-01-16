@@ -1,0 +1,33 @@
+#!/bin/bash
+## 
+## @file cursor.rc
+## @project bash_fw
+## @author Charles-Antoine Degennes (cadegenn@gmail.com)
+## @date 2019.01.16
+## @copyright (c) 2019 Charles-Antoine Degennes
+## 
+## @modified 
+## @modifiedby 
+## 
+## This file is part of Tiny # bash Framework
+## 
+##        Tiny # bash Framework is free software: you can redistribute it and/or modify
+##        it under the terms of the GNU General Public License as published by
+##        the Free Software Foundation, either version 3 of the License, or
+##        (at your option) any later version.
+## 
+##        Tiny # bash Framework is distributed in the hope that it will be useful,
+##        but WITHOUT ANY WARRANTY; without even the implied warranty of
+##        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##        GNU General Public License for more details.
+## 
+##        You should have received a copy of the GNU General Public License
+##        along with Tiny # bash Framework.  If not, see <http://www.gnu.org/licenses/>.
+## 
+## 
+
+## @detail ANSI escape character to move cursor around
+## @url http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
+
+CURSOR_MOVE_UP="\e[1A"
+CURSOR_MOVE_DOWN="\e[1B"

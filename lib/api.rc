@@ -45,6 +45,7 @@ TMP=/tmp/${BASENAME}.$$
 DIRNAME=${DIRNAME:=.}
 
 #source "/lib/lsb/init-functions"
+source "${SOURCE_DIRNAME}/cursor.rc"
 source "${SOURCE_DIRNAME}/efunctions.rc"
 source "${SOURCE_DIRNAME}/returncodes.rc"
 if [ "${BASHFW_THEME}" ]; then
