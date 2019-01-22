@@ -335,14 +335,14 @@ eexec() {
 	[ "${SIMULATE}" ] && eend ${RC_UNUSED} && return 0
 	if [ "${DEVEL}" ]; then
 		echo -ne "\n${THEME_DEVEL_COLOR}"
-		${CMD}
+		eval ${CMD}
 		RC=$?
 	elif [ "${DEBUG}" ]; then
 		echo -ne "\n${THEME_ERROR_COLOR}"
-		${CMD} > /dev/null
+		eval ${CMD} > /dev/null
 		RC=$?
 	else
-		${CMD} > /dev/null 2>&1
+		eval ${CMD} > /dev/null 2>&1
 		RC=$?
 	fi
 	[ "${QUIET}" ] && return ${RC}
