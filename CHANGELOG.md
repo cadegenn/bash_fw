@@ -7,8 +7,8 @@ This tiny linux bash framework is a rolling release program. That's why you won'
 ### Changed
 - [skel] `-q` parameter make script really quiet
 - [efunctions] `eend()` improved
-- [efunctions] `eexec()` improved
-- [api] new `cursor.rc` resource file to mave cursor around
+- [efunctions] `eexec()` handle of DEVEL and DEBUG improved
+- [api] new `cursor.rc` resource file to move cursor around
 ### Removed
 
 ### 2017
