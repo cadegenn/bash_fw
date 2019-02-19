@@ -118,8 +118,10 @@ usage() {
 
 # Clean som stuff on exit
 onExit() {
+	local rc=$?
 	set -e
 	[ -e ${TMP} ] && rm -Rf ${TMP}
+	return ${rc}
 }
 
 # Set traps
